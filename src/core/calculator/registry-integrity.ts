@@ -51,6 +51,10 @@ export const RESERVED_SLUGS: ReadonlySet<string> = new Set([
   '_astro',
   // Reservado para un futuro listado de calculadoras (ADR 0009).
   'calculadoras',
+  // Páginas legales (src/config/legal.ts).
+  'aviso-legal',
+  'privacidad',
+  'cookies',
 ]);
 
 export function validateCalculatorRegistry(

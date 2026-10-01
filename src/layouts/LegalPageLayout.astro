@@ -1,0 +1,64 @@
+---
+/**
+ * Plantilla de las páginas legales (aviso legal, privacidad, cookies).
+ *
+ * Mientras los textos no estén revisados jurídicamente
+ * (src/config/legal.ts → legalTextsReviewed):
+ *   - la página es noindex (y queda fuera del sitemap);
+ *   - se muestra un aviso de borrador y la fecha se marca como provisional.
+ * Si se marcan como revisados sin NIF o domicilio, el build falla.
+ */
+import Breadcrumbs from '@/components/layout/Breadcrumbs.astro';
+import { legalTextsLastUpdated, legalTextsReviewed, unindexableLegalPaths } from '@/config/legal';
+import { site } from '@/config/env';
+import { toIsoDate } from '@/core/dates/iso-date';
+import { formatIsoDate } from '@/i18n/format';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+}
+
+const { title, description, path } = Astro.props;
+const noindex = unindexableLegalPaths().includes(path);
+const lastUpdated = formatIsoDate(toIsoDate(legalTextsLastUpdated), site.locale);
+---
+
+<BaseLayout page={{ title, description, path, noindex }}>
+  <article class="mx-auto flex max-w-content flex-col gap-6 px-gutter py-8 sm:py-10">
+    <div class="flex flex-col gap-4">
+      <Breadcrumbs
+        items={[
+          { name: 'Inicio', path: '/' },
+          { name: title, path },
+        ]}
+      />
+      <h1 class="text-3xl font-bold tracking-tight text-balance text-text sm:text-4xl">{title}</h1>
+      <p class="text-sm text-muted">
+        Última actualización: {lastUpdated}
+        {!legalTextsReviewed && <span> (fecha provisional del borrador)</span>}
+      </p>
+    </div>
+
+    {!legalTextsReviewed && (
+      <aside
+        aria-labelledby="borrador-legal"
+        class="rounded-card border border-border bg-warning-soft p-4 text-sm"
+      >
+        <h2 id="borrador-legal" class="font-semibold text-warning">
+          Borrador pendiente de revisión jurídica
+        </h2>
+        <p class="mt-1 text-text">
+          Este texto es un borrador informativo y provisional. Todavía no lo ha revisado ningún
+          profesional del derecho y puede cambiar antes de considerarse definitivo.
+        </p>
+      </aside>
+    )}
+
+    <div class="flex flex-col gap-6 text-text">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>

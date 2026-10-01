@@ -1,0 +1,72 @@
+---
+/**
+ * Política de cookies — BORRADOR pendiente de revisión jurídica.
+ *
+ * Refleja el estado REAL comprobado el 01/10/2026 en producción con un
+ * navegador: 0 cookies, nada en localStorage, sessionStorage ni IndexedDB,
+ * ningún service worker y ninguna petición a terceros. Si algún día se
+ * activa un servicio que use cookies, esta página debe actualizarse ANTES.
+ */
+import LegalPageLayout from '@/layouts/LegalPageLayout.astro';
+---
+
+<LegalPageLayout
+  title="Política de cookies"
+  description="CalculDS no utiliza cookies ni guarda información en tu navegador."
+  path="/cookies"
+>
+  <section aria-labelledby="que-son" class="flex flex-col gap-3">
+    <h2 id="que-son" class="text-xl font-semibold">
+      1. Qué son las cookies
+    </h2>
+    <p>
+      Las cookies son pequeños archivos que un sitio web puede guardar en tu navegador. Esta
+      política se refiere también a otras formas de guardar información en el navegador, como el
+      almacenamiento local (localStorage y sessionStorage) o las bases de datos del navegador
+      (IndexedDB).
+    </p>
+  </section>
+
+  <section aria-labelledby="uso" class="flex flex-col gap-3">
+    <h2 id="uso" class="text-xl font-semibold">
+      2. Uso de cookies en CalculDS
+    </h2>
+    <p>
+      <strong>CalculDS no utiliza cookies ni guarda información en tu navegador.</strong> No hay
+      cookies técnicas, de análisis ni publicitarias, y el sitio no carga servicios de terceros que
+      puedan instalarlas. Comprobado el 1 de octubre de 2026.
+    </p>
+    <p>Por eso no se muestra ningún aviso para aceptar cookies.</p>
+  </section>
+
+  <section aria-labelledby="enlaces" class="flex flex-col gap-3">
+    <h2 id="enlaces" class="text-xl font-semibold">
+      3. Sitios externos
+    </h2>
+    <p>
+      Si sigues un enlace a una fuente externa, ese sitio puede utilizar sus propias cookies, que se
+      rigen por su política.
+    </p>
+  </section>
+
+  <section aria-labelledby="navegador" class="flex flex-col gap-3">
+    <h2 id="navegador" class="text-xl font-semibold">
+      4. Gestión desde el navegador
+    </h2>
+    <p>
+      Puedes consultar y eliminar las cookies y los datos de los sitios web desde la configuración
+      de tu navegador.
+    </p>
+  </section>
+
+  <section aria-labelledby="cambios" class="flex flex-col gap-3">
+    <h2 id="cambios" class="text-xl font-semibold">
+      5. Cambios en esta política
+    </h2>
+    <p>
+      Si en el futuro se incorporan servicios que utilicen cookies, como herramientas de analítica o
+      publicidad, esta política se actualizará antes de activarlos y, cuando la normativa lo exija,
+      se pedirá tu consentimiento antes de instalarlas.
+    </p>
+  </section>
+</LegalPageLayout>

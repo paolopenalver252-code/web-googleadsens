@@ -79,6 +79,8 @@ export const esES: LocaleDefinition = {
     },
     jurisdictions: {
       ES: 'España',
+      US: 'Estados Unidos',
+      CA: 'Canadá',
     },
     ui: {
       skipLink: 'Saltar al contenido principal',

@@ -52,10 +52,10 @@ describe('validateCalculatorRegistry', () => {
     ]);
   });
 
-  it('el futuro listado /calculadoras está reservado', () => {
-    expect(validate([entry(meta('x', [], 'calculadoras'))])).toEqual([
-      { kind: 'reserved_slug', slug: 'calculadoras' },
-    ]);
+  it('el futuro listado /calculadoras y las páginas legales están reservados', () => {
+    for (const slug of ['calculadoras', 'aviso-legal', 'privacidad', 'cookies']) {
+      expect(validate([entry(meta('x', [], slug))])).toEqual([{ kind: 'reserved_slug', slug }]);
+    }
   });
 
   it('detecta H1, title o description vacíos y categorías desconocidas', () => {

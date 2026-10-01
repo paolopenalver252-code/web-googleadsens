@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, envField } from 'astro/config';
 
 import { testPages, TEST_ROUTE_PREFIX } from './integrations/test-pages';
+import { unindexableLegalPaths } from './src/config/legal';
 import { resolveSiteUrl } from './src/config/site';
 import { createSitemapFilter } from './src/lib/seo/sitemap';
 
@@ -28,8 +29,12 @@ export default defineConfig({
   integrations: [
     preact(),
     sitemap({
-      // Sin páginas de prueba ni calculadoras en borrador (src/lib/seo/sitemap.ts).
-      filter: createSitemapFilter({ excludedPrefixes: [TEST_ROUTE_PREFIX] }),
+      // Sin páginas de prueba, calculadoras en borrador ni textos legales
+      // pendientes de revisión (src/lib/seo/sitemap.ts, src/config/legal.ts).
+      filter: createSitemapFilter({
+        excludedPrefixes: [TEST_ROUTE_PREFIX],
+        excludedPaths: unindexableLegalPaths(),
+      }),
     }),
     ...(includeTestPages ? [testPages()] : []),
   ],

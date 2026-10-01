@@ -166,13 +166,16 @@ test.describe('contenido', () => {
     ]) {
       await expect(page.getByRole('heading', { level: 2, name, exact: true })).toBeVisible();
     }
-    // Las fuentes NO están verificadas: se dice explícitamente.
-    await expect(
-      page
-        .locator('section[aria-labelledby="fuentes"]')
-        .getByText('NO VERIFICADO — NECESITA FUENTE'),
-    ).toBeVisible();
-    await expect(page.locator('section[aria-labelledby="fuentes"] a')).toHaveCount(0);
+    // Las 5 fuentes están verificadas: muestran sus fechas de consulta y
+    // revisión y ninguna lleva la marca de "no verificado".
+    const section = page.locator('section[aria-labelledby="fuentes"]');
+    const sources = section.locator('li[data-source-id]');
+    await expect(sources).toHaveCount(5);
+    await expect(section.getByText('NO VERIFICADO — NECESITA FUENTE')).toHaveCount(0);
+    for (const source of await sources.all()) {
+      await expect(source.getByText(/Consultada el 1 de octubre de 2026/)).toBeVisible();
+      await expect(source.locator('a')).toHaveAttribute('rel', 'noreferrer');
+    }
     // El aviso está redactado (no es el placeholder).
     await expect(page.getByText(/PLACEHOLDER/)).toHaveCount(0);
     // Nunca se presenta el tipo equivalente como TAE.

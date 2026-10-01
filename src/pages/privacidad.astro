@@ -1,0 +1,142 @@
+---
+/**
+ * Política de privacidad — BORRADOR pendiente de revisión jurídica.
+ *
+ * Describe el funcionamiento REAL del sitio, comprobado el 01/10/2026 en
+ * producción con un navegador (sin cookies, sin almacenamiento, sin
+ * peticiones a terceros) y en el código (cálculo local, sin formularios que
+ * envíen datos; tests E2E de privacidad). No afirma nada sobre el tratamiento
+ * que hace Vercel que no esté verificado: queda marcado como pendiente.
+ */
+import { legalOwner, PENDING_ADDRESS, PENDING_NIF } from '@/config/legal';
+import LegalPageLayout from '@/layouts/LegalPageLayout.astro';
+
+const owner = legalOwner;
+---
+
+<LegalPageLayout
+  title="Política de privacidad"
+  description="Qué datos trata CalculDS: las calculadoras funcionan en tu navegador y no envían ni guardan lo que introduces."
+  path="/privacidad"
+>
+  <section aria-labelledby="responsable" class="flex flex-col gap-3">
+    <h2 id="responsable" class="text-xl font-semibold">
+      1. Responsable
+    </h2>
+    <dl class="grid gap-x-6 gap-y-2 sm:grid-cols-[auto_1fr]">
+      <dt class="font-medium">Responsable</dt>
+      <dd>{owner.fullName}</dd>
+      <dt class="font-medium">NIF</dt>
+      <dd>{owner.nif ?? <strong class="text-warning">{PENDING_NIF}</strong>}</dd>
+      <dt class="font-medium">Domicilio</dt>
+      <dd>
+        {owner.address ?? <strong class="text-warning">{PENDING_ADDRESS}</strong>}
+        {owner.address === null && <span> (residencia: {owner.residence})</span>}
+      </dd>
+      <dt class="font-medium">Contacto</dt>
+      <dd>
+        <a href={`mailto:${owner.email}`}>{owner.email}</a>
+      </dd>
+    </dl>
+    <p>No se ha designado un delegado de protección de datos.</p>
+  </section>
+
+  <section aria-labelledby="calculadoras" class="flex flex-col gap-3">
+    <h2 id="calculadoras" class="text-xl font-semibold">
+      2. Datos que introduces en las calculadoras
+    </h2>
+    <p>
+      Los cálculos se hacen en tu propio navegador. Los valores que introduces en una calculadora no
+      se envían a CalculDS ni a terceros, no se guardan y no se añaden a la dirección de la página.
+      Se pierden al recargar o cerrar la página.
+    </p>
+  </section>
+
+  <section aria-labelledby="no-recogidos" class="flex flex-col gap-3">
+    <h2 id="no-recogidos" class="text-xl font-semibold">
+      3. Datos que CalculDS no recoge
+    </h2>
+    <p>
+      El sitio no tiene formularios de contacto, registro de usuarios, inicio de sesión ni boletín.
+      Tampoco utiliza herramientas de analítica, publicidad ni redes sociales, ni carga scripts,
+      fuentes tipográficas u otros recursos de terceros.
+    </p>
+  </section>
+
+  <section aria-labelledby="alojamiento" class="flex flex-col gap-3">
+    <h2 id="alojamiento" class="text-xl font-semibold">
+      4. Alojamiento del sitio (Vercel)
+    </h2>
+    <p>
+      CalculDS está alojado en Vercel. Como ocurre con cualquier sitio web, al visitarlo tu
+      navegador se conecta con los servidores del proveedor de alojamiento, que reciben datos
+      técnicos de la conexión, como la dirección IP y la información que envía el navegador. Estos
+      registros técnicos del servicio de alojamiento se tratan según la documentación aplicable de
+      Vercel.
+    </p>
+    <p>
+      <strong class="text-warning">
+        [PENDIENTE DE REVISIÓN JURÍDICA: finalidad, base jurídica, plazo de conservación, ubicación
+        y posibles transferencias internacionales de estos registros, una vez comprobados en la
+        documentación y en el acuerdo de tratamiento de datos de Vercel.]
+      </strong>
+    </p>
+  </section>
+
+  <section aria-labelledby="correo" class="flex flex-col gap-3">
+    <h2 id="correo" class="text-xl font-semibold">
+      5. Si escribes al correo de contacto
+    </h2>
+    <p>
+      Si escribes a {owner.email}, se recibirán tu dirección de correo electrónico y el contenido de
+      tu mensaje.
+    </p>
+    <p>
+      <strong class="text-warning">
+        [PENDIENTE DE REVISIÓN JURÍDICA: finalidad, base jurídica y plazo de conservación de estas
+        comunicaciones, y proveedor del servicio de correo.]
+      </strong>
+    </p>
+  </section>
+
+  <section aria-labelledby="enlaces" class="flex flex-col gap-3">
+    <h2 id="enlaces" class="text-xl font-semibold">
+      6. Enlaces a otros sitios
+    </h2>
+    <p>
+      Las calculadoras enlazan a fuentes externas. Tu navegador solo se conecta con esos sitios si
+      haces clic en un enlace; a partir de ese momento se aplican sus propias políticas de
+      privacidad.
+    </p>
+  </section>
+
+  <section aria-labelledby="derechos" class="flex flex-col gap-3">
+    <h2 id="derechos" class="text-xl font-semibold">
+      7. Tus derechos
+    </h2>
+    <p>
+      Puedes ejercer los derechos que te reconoce la normativa de protección de datos escribiendo a{' '}
+      <a href={`mailto:${owner.email}`}>{owner.email}</a>. También puedes presentar una reclamación
+      ante la Agencia Española de Protección de Datos (
+      <a href="https://www.aepd.es" rel="noreferrer">
+        www.aepd.es
+      </a>
+      ).
+    </p>
+    <p>
+      <strong class="text-warning">
+        [PENDIENTE DE REVISIÓN JURÍDICA: relación de derechos aplicables y forma de ejercerlos.]
+      </strong>
+    </p>
+  </section>
+
+  <section aria-labelledby="cambios" class="flex flex-col gap-3">
+    <h2 id="cambios" class="text-xl font-semibold">
+      8. Cambios en esta política
+    </h2>
+    <p>
+      Si en el futuro se incorporan servicios que traten datos personales, como herramientas de
+      analítica o publicidad, esta política se actualizará antes de activarlos.
+    </p>
+  </section>
+</LegalPageLayout>

@@ -9,7 +9,9 @@
  *   - derived-from-engine: metodología, ejemplos numéricos, FAQ sobre el
  *     comportamiento del cálculo;
  *   - editorial-explanation: definiciones y explicaciones conceptuales;
- *   - source-backed: ninguna todavía (no hay fuentes verificadas).
+ *   - source-backed: concepto y ejemplo F1, fórmulas de capitalización, de
+ *     aportaciones y de tipos equivalentes, y la terminología TAE (fuentes
+ *     verificadas el 01/10/2026 en src/sources/registry.ts).
  *
  * Todo lo que se afirma sobre el cálculo describe el comportamiento real de
  * engine.ts, rates.ts, constants.ts y definition.ts (ver ADR 0008). Los
@@ -304,8 +306,8 @@ const faqs = [
   <Fragment slot="methodology">
     <p>
       El resultado lo calcula el motor de la calculadora en tu navegador, con aritmética decimal de
-      40 dígitos significativos y sin redondeos intermedios. Estas son las reglas exactas que
-      aplica:
+      40 dígitos significativos y sin redondear a céntimos durante el cálculo. Estas son las reglas
+      exactas que aplica:
     </p>
 
     <h3 class="text-lg font-semibold text-text">1. Número de periodos</h3>

@@ -4,12 +4,14 @@
 
 ## Estado actual (2026-10-01)
 
+Datos del titular y estado de revisión: `src/config/legal.ts`. Mientras `legalTextsReviewed` sea `false`, las tres páginas son `noindex`, quedan fuera del sitemap y muestran un aviso de borrador. Marcarlas como revisadas sin NIF ni domicilio hace fallar el build.
+
 | Elemento                         | Estado                                                                                                                                        |
 | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | Cookies, analítica, publicidad   | **Ninguna.** El sitio no usa cookies ni almacenamiento del navegador y no hace peticiones a terceros (tests E2E de privacidad y `check:dist`) |
-| Aviso legal                      | **No existe.** PENDIENTE: requiere titular identificado (marca y dominio sin definir)                                                         |
-| Política de privacidad           | **No existe.** PENDIENTE                                                                                                                      |
-| Política de cookies              | **No existe.** Hoy no hay cookies que describir; será necesaria antes de activar AdSense o analítica                                          |
+| Aviso legal                      | **Borrador** en `/aviso-legal`: pendiente de revisión jurídica, NIF y domicilio completo. `noindex` y fuera del sitemap                       |
+| Política de privacidad           | **Borrador** en `/privacidad`: pendiente de revisión jurídica (registros de Vercel, correo de contacto, derechos)                             |
+| Política de cookies              | **Borrador** en `/cookies`: declara el estado real (sin cookies ni almacenamiento). Pendiente de revisión jurídica                            |
 | CMP (gestión del consentimiento) | **No existe.** `consentConfig.cmp = null` (`src/config/features.ts`)                                                                          |
 
 Requisitos legales españoles concretos (LSSI-CE, RGPD/LOPDGDD, guía de cookies de la AEPD): **NO VERIFICADO — NECESITA FUENTE** y revisión jurídica. No se cita aquí ningún artículo sin haberlo comprobado.

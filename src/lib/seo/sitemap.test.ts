@@ -42,3 +42,17 @@ describe('createSitemapFilter', () => {
     expect(real(url('/'))).toBe(true);
   });
 });
+
+describe('createSitemapFilter: rutas exactas excluidas', () => {
+  it('excluye las páginas legales pendientes de revisión, sin afectar a otras', () => {
+    const filter = createSitemapFilter({
+      excludedPrefixes: [],
+      excludedPaths: ['/aviso-legal', '/privacidad', '/cookies'],
+      registry: [],
+    });
+    expect(filter('https://example.com/aviso-legal')).toBe(false);
+    expect(filter('https://example.com/cookies/')).toBe(false);
+    expect(filter('https://example.com/cookies-extra')).toBe(true);
+    expect(filter('https://example.com/')).toBe(true);
+  });
+});

@@ -319,8 +319,17 @@ describe('SeoHead', () => {
 });
 
 describe('Footer', () => {
-  it('sin páginas legales declaradas (estado actual) no enlaza nada', async () => {
+  it('por defecto enlaza las tres páginas legales', async () => {
     const doc = dom(await container.renderToString(Footer));
+    expect([...doc.querySelectorAll('nav a')].map((link) => link.getAttribute('href'))).toEqual([
+      '/aviso-legal',
+      '/privacidad',
+      '/cookies',
+    ]);
+  });
+
+  it('sin páginas legales declaradas no enlaza nada', async () => {
+    const doc = dom(await container.renderToString(Footer, { props: { legal: [] } }));
     expect(doc.querySelector('nav')).toBeNull();
     expect(doc.querySelectorAll('a')).toHaveLength(0);
   });
