@@ -41,6 +41,7 @@ test.describe('flujo de cálculo', () => {
 
   test('entrada española → resultado formateado y anuncio accesible', async ({ page }) => {
     await page.goto(HARNESS_PATH);
+    await expect(page.getByRole('button', { name: 'Calcular' })).toBeEnabled(); // hidratada
     await page.getByLabel('Importe').fill('1.234,56');
     await page.getByLabel('Porcentaje (opcional)').fill('5,25');
     await page.getByLabel('Periodos').fill('12');
@@ -56,6 +57,7 @@ test.describe('flujo de cálculo', () => {
 
   test('solo con teclado: tabulación en orden y Enter para calcular', async ({ page }) => {
     await page.goto(HARNESS_PATH);
+    await expect(page.getByRole('button', { name: 'Calcular' })).toBeEnabled(); // hidratada
     await page.getByLabel('Importe').focus();
     await page.keyboard.type('50');
     await page.keyboard.press('Tab');
@@ -69,6 +71,7 @@ test.describe('flujo de cálculo', () => {
 
   test('privacidad: no guarda datos ni cookies y no los pone en la URL', async ({ page }) => {
     await page.goto(HARNESS_PATH);
+    await expect(page.getByRole('button', { name: 'Calcular' })).toBeEnabled(); // hidratada
     await page.getByLabel('Importe').fill('999');
     await page.getByLabel('Periodos').fill('1');
     await page.getByRole('button', { name: 'Calcular' }).click();

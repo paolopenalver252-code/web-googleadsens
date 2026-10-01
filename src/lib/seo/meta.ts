@@ -49,6 +49,12 @@ export function buildPageMeta(input: PageMetaInput, site: SiteMetaContext): Page
   const fullTitle = title === site.siteName ? title : `${title} · ${site.siteName}`;
   const robots: RobotsDirective =
     site.indexable && input.noindex !== true ? 'index, follow' : 'noindex, nofollow';
+  // Un texto provisional nunca puede llegar indexado a Google: el build falla.
+  if (robots === 'index, follow' && `${title} ${description}`.includes('PLACEHOLDER')) {
+    throw new Error(
+      `Página "${input.path}": indexable con texto PLACEHOLDER (pendiente de definir)`,
+    );
+  }
 
   return {
     title: fullTitle,

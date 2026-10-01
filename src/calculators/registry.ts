@@ -12,6 +12,7 @@
  * Definition of Done, incluidas fuentes verificadas (src/calculators/registry.test.ts
  * lo comprueba).
  */
+import type { CalculatorMetadata } from '@/core/calculator/definition';
 import type { CalculatorEntry } from '@/core/calculator/registry-integrity';
 
 import type { CalculatorCategoryId } from './categories';
@@ -35,6 +36,15 @@ export const calculatorRegistry: readonly SiteCalculatorEntry[] = [
     status: 'draft',
   },
 ];
+
+/**
+ * URL de la página de una calculadora: "/" + slug, exactamente. Es el ÚNICO
+ * sitio donde se construye; la usan la página (canonical y migas), la
+ * portada, las relacionadas y el sitemap, así que nunca pueden divergir.
+ */
+export function calculatorPath(calculator: Pick<CalculatorMetadata, 'slug'>): string {
+  return `/${calculator.slug}`;
+}
 
 /** `registry` es inyectable en tests; por defecto, el registro real. */
 export function findCalculatorEntry(
@@ -60,5 +70,5 @@ export function unpublishedCalculatorPaths(
 ): readonly string[] {
   return registry
     .filter((entry) => entry.status !== 'published')
-    .map((entry) => `/${entry.calculator.slug}`);
+    .map((entry) => calculatorPath(entry.calculator));
 }

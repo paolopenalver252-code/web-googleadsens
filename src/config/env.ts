@@ -16,7 +16,11 @@ export const site = {
   url: siteUrl,
   name: siteIdentity.name,
   isPlaceholderIdentity: siteIdentity.isPlaceholder,
-  indexable: isIndexable({ siteUrl, vercelEnv: VERCEL_ENV }),
+  indexable: isIndexable({
+    siteUrl,
+    vercelEnv: VERCEL_ENV,
+    isPlaceholderIdentity: siteIdentity.isPlaceholder,
+  }),
   locale: esES,
 } as const;
 

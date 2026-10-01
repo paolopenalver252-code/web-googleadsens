@@ -81,6 +81,7 @@ Antes de escribir código, rellena la ficha de la calculadora a partir de [docs/
 - [ ] La página es útil y completa sin anuncios: el contenido se sostiene por sí mismo.
 - [ ] Los anuncios solo van en las posiciones de `AdPosition` (nunca en el formulario, entre campos y resultado, junto a botones ni entre una pregunta y su respuesta).
 - [ ] Cada espacio activado tiene altura reservada (sin CLS) e id de bloque real; el build falla si no (`adSlotBlockers`).
+- [ ] El script de AdSense solo se carga desde `AdsScript.astro` (una vez, en `BaseLayout`) y los anuncios solo aparecen en calculadoras `published` (`monetizable`, automático). Lo vigilan `src/architecture.test.ts` y `publishing-flow.test.ts`.
 - [ ] La calculadora funciona igual si el anuncio tarda, falla, no hay consentimiento o el navegador lo bloquea.
 - [ ] Existen las páginas legales y la CMP certificada (docs/privacidad-y-legal.md).
 

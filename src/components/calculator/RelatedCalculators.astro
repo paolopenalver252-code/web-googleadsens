@@ -4,7 +4,7 @@
  * en la definición (`related`), nunca generados automáticamente. Lanza si un
  * id no está registrado. Sin relacionadas, no renderiza nada.
  */
-import { calculatorRegistry } from '@/calculators/registry';
+import { calculatorPath, calculatorRegistry } from '@/calculators/registry';
 import { site } from '@/config/env';
 import type { CalculatorEntry } from '@/core/calculator/registry-integrity';
 
@@ -30,7 +30,7 @@ const entries = ids.map((id) => {
     <ul class="flex flex-col gap-2">
       {entries.map((entry) => (
         <li>
-          <a href={`/${entry.calculator.slug}`}>{entry.name}</a>
+          <a href={calculatorPath(entry.calculator)}>{entry.name}</a>
         </li>
       ))}
     </ul>

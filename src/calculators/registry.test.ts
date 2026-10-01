@@ -9,10 +9,12 @@ import {
   type CalculatorEntry,
 } from '@/core/calculator/registry-integrity';
 import { publicationBlockers } from '@/core/sources/integrity';
+import { buildCanonicalUrl } from '@/lib/seo/canonical';
 import { sourceRegistry } from '@/sources/registry';
 
 import { calculatorCategoryIds } from './categories';
 import {
+  calculatorPath,
   calculatorRegistry,
   findCalculatorEntry,
   publishedCalculators,
@@ -29,6 +31,26 @@ describe('registro de calculadoras', () => {
       .map((entry) => entry.calculator.slug)
       .filter((slug) => !existsSync(resolve(process.cwd(), 'src/pages', `${slug}.astro`)));
     expect(missing).toEqual([]);
+  });
+
+  it('cada slug cumple la política de URL: minúsculas, kebab-case, sin barras ni extensión', () => {
+    // Vercel distingue mayúsculas (/Calculadora-… da 404) y cleanUrls redirige
+    // .html y la barra final a /<slug>: el slug tiene que ser ya la forma final.
+    const invalid = calculatorRegistry
+      .map((entry) => entry.calculator.slug)
+      .filter((slug) => !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug));
+    expect(invalid).toEqual([]);
+  });
+
+  it('calculatorPath es exactamente "/" + slug y coincide con el canonical', () => {
+    for (const entry of calculatorRegistry) {
+      const path = calculatorPath(entry.calculator);
+      expect(path).toBe(`/${entry.calculator.slug}`);
+      expect(new URL(buildCanonicalUrl('https://example.com', path)).pathname).toBe(path);
+    }
+    expect(calculatorPath({ slug: 'calculadora-interes-compuesto' })).toBe(
+      '/calculadora-interes-compuesto',
+    );
   });
 
   it('cada página usa los metadatos del registro (calculatorPageProps), no metadatos escritos a mano', () => {

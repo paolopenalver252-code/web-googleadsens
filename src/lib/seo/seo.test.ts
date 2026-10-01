@@ -54,6 +54,15 @@ describe('buildPageMeta', () => {
     });
   });
 
+  it('una página indexable con texto PLACEHOLDER rompe el build; noindex sí se permite', () => {
+    const page = { title: 'Sitio', description: 'PLACEHOLDER — PENDIENTE', path: '/' };
+    expect(() => buildPageMeta(page, indexable)).toThrow(/PLACEHOLDER/);
+    expect(buildPageMeta(page, { ...indexable, indexable: false }).robots).toBe(
+      'noindex, nofollow',
+    );
+    expect(buildPageMeta({ ...page, noindex: true }, indexable).robots).toBe('noindex, nofollow');
+  });
+
   it('no duplica el nombre del sitio en la portada', () => {
     expect(buildPageMeta({ title: 'Sitio', description: 'x', path: '/' }, indexable).title).toBe(
       'Sitio',

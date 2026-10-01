@@ -31,9 +31,14 @@ interface Props {
   calculator: CalculatorMetadata;
   /** Fuentes citadas por id además de las que declaran respaldar la calculadora. */
   sourceIds?: readonly string[];
+  /**
+   * Si la página puede mostrar anuncios. Por defecto `false`: solo
+   * calculatorPageProps lo activa, y solo para calculadoras publicadas.
+   */
+  monetizable?: boolean;
 }
 
-const { page, heading, breadcrumbs, calculator, sourceIds = [] } = Astro.props;
+const { page, heading, breadcrumbs, calculator, sourceIds = [], monetizable = false } = Astro.props;
 ---
 
 <BaseLayout page={page}>
@@ -59,7 +64,7 @@ const { page, heading, breadcrumbs, calculator, sourceIds = [] } = Astro.props;
       </noscript>
     </div>
 
-    <AdSlot position="after-result" />
+    <AdSlot position="after-result" pageAllowsAds={monetizable} />
 
     {Astro.slots.has('content') && (
       <div class="flex flex-col gap-4 text-text">
@@ -87,6 +92,6 @@ const { page, heading, breadcrumbs, calculator, sourceIds = [] } = Astro.props;
 
     <RelatedCalculators ids={calculator.related} />
 
-    <AdSlot position="end-of-content" />
+    <AdSlot position="end-of-content" pageAllowsAds={monetizable} />
   </div>
 </BaseLayout>

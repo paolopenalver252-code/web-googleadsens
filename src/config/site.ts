@@ -51,14 +51,21 @@ export function resolveSiteUrl(raw: string | undefined): string {
 }
 
 /**
- * El sitio solo es indexable si es el despliegue de producción de Vercel Y
- * existe un dominio definitivo. Cualquier otro caso (build local, previews
- * — incluidas las previews con dominio propio, a las que Vercel no añade
- * `X-Robots-Tag: noindex` — o dominio placeholder) emite `noindex`.
+ * El sitio solo es indexable si es el despliegue de producción de Vercel,
+ * existe un dominio definitivo Y la identidad (marca) ya no es provisional.
+ * Cualquier otro caso (build local, previews — incluidas las previews con
+ * dominio propio, a las que Vercel no añade `X-Robots-Tag: noindex` —,
+ * dominio placeholder o marca provisional) emite `noindex`. Así, conectar el
+ * dominio antes de terminar la identidad no indexa textos provisionales.
  */
 export function isIndexable(params: {
   readonly siteUrl: string;
   readonly vercelEnv: VercelEnv | undefined;
+  readonly isPlaceholderIdentity: boolean;
 }): boolean {
-  return params.vercelEnv === 'production' && params.siteUrl !== PLACEHOLDER_SITE_URL;
+  return (
+    params.vercelEnv === 'production' &&
+    params.siteUrl !== PLACEHOLDER_SITE_URL &&
+    !params.isPlaceholderIdentity
+  );
 }

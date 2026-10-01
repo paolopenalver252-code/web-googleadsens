@@ -4,13 +4,10 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, envField } from 'astro/config';
 
 import { testPages, TEST_ROUTE_PREFIX } from './integrations/test-pages';
-import { unpublishedCalculatorPaths } from './src/calculators/registry';
 import { resolveSiteUrl } from './src/config/site';
+import { createSitemapFilter } from './src/lib/seo/sitemap';
 
 const includeTestPages = process.env.INCLUDE_TEST_PAGES === '1';
-
-/** Calculadoras en borrador: tienen página (noindex) pero no entran en el sitemap. */
-const unpublishedPaths = new Set(unpublishedCalculatorPaths());
 
 export default defineConfig({
   // PLACEHOLDER — PENDIENTE DE DEFINIR: mientras no exista dominio, se usa
@@ -31,8 +28,8 @@ export default defineConfig({
   integrations: [
     preact(),
     sitemap({
-      filter: (page) =>
-        !page.includes(TEST_ROUTE_PREFIX) && !unpublishedPaths.has(new URL(page).pathname),
+      // Sin páginas de prueba ni calculadoras en borrador (src/lib/seo/sitemap.ts).
+      filter: createSitemapFilter({ excludedPrefixes: [TEST_ROUTE_PREFIX] }),
     }),
     ...(includeTestPages ? [testPages()] : []),
   ],

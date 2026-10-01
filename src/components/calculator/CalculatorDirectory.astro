@@ -1,0 +1,52 @@
+---
+/**
+ * Directorio de calculadoras de la portada. Lista SOLO las calculadoras
+ * `published`, agrupadas por categoría (publishedByCategory omite las
+ * categorías vacías). Un borrador nunca aparece: es el comportamiento
+ * previsto (ADR 0009), no un fallo. Cada enlace es calculatorPath(), la misma
+ * ruta que el canonical de la página.
+ */
+import { publishedByCategory } from '@/calculators/categories';
+import { calculatorPath, calculatorRegistry } from '@/calculators/registry';
+import { site } from '@/config/env';
+import type { CalculatorEntry } from '@/core/calculator/registry-integrity';
+
+interface Props {
+  /** Inyectable en tests. */
+  registry?: readonly CalculatorEntry[];
+}
+
+const { registry = calculatorRegistry } = Astro.props;
+const { ui } = site.locale.messages;
+const groups = publishedByCategory(registry);
+---
+
+<section id="calculadoras" aria-labelledby="calculadoras-titulo" class="flex flex-col gap-4">
+  <h2 id="calculadoras-titulo" class="text-xl font-semibold text-text">
+    {ui.calculatorsHeading}
+  </h2>
+  {groups.length === 0 ? (
+    <p class="text-muted">{ui.noCalculatorsYet}</p>
+  ) : (
+    groups.map((group) => (
+      <section aria-labelledby={`categoria-${group.category.id}`} class="flex flex-col gap-3">
+        <h3 id={`categoria-${group.category.id}`} class="font-semibold text-text">
+          {group.category.name}
+        </h3>
+        <ul class="grid gap-3 sm:grid-cols-2">
+          {group.entries.map((entry) => (
+            <li>
+              <a
+                href={calculatorPath(entry.calculator)}
+                class="flex h-full flex-col gap-1 rounded-card border border-border bg-surface p-4 no-underline shadow-card"
+              >
+                <span class="font-medium">{entry.name}</span>
+                <span class="text-sm text-muted">{entry.seo.description}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  )}
+</section>

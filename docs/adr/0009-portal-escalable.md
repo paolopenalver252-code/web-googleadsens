@@ -1,7 +1,7 @@
 # ADR 0009 — Arquitectura escalable del portal de calculadoras
 
 - **Estado:** aceptada
-- **Fecha:** 2026-10-01
+- **Fecha:** 2026-10-01 (ampliada el mismo día: anuncios solo en calculadoras publicadas, script global único, filtro del sitemap y guardas de arquitectura)
 
 ## Contexto
 
@@ -14,19 +14,22 @@ El sitio debe pasar de 1 calculadora a 10 y después a más de 50, cada una con 
 `src/calculators/registry.ts` declara por calculadora: definición (id, slug, versión del motor, `related`), `name`, `heading` (H1), `category`, `seo.title`, `seo.description` y `status`.
 
 - La **página** obtiene title, description, ruta, robots, H1 y migas con `calculatorPageProps('<id>')` (`src/lib/seo/calculator-page.ts`). Un test exige que toda página registrada lo use.
-- La **portada**, el **sitemap** (`unpublishedCalculatorPaths`) y las **calculadoras relacionadas** leen el mismo registro.
+- La **portada** (`CalculatorDirectory`), el **sitemap** (`createSitemapFilter`) y las **calculadoras relacionadas** leen el mismo registro. La URL de una calculadora se construye solo en `calculatorPath()` (`/` + slug).
+- Que la portada muestre «Todavía no hay calculadoras publicadas» mientras todas sean borradores es el **comportamiento previsto**: un borrador solo es accesible por su URL directa.
 - `validateCalculatorRegistry` comprueba ids, slugs, slugs reservados (incluido `calculadoras`), campos vacíos, categorías desconocidas, **titles y descriptions repetidos** y enlaces de páginas publicadas a borradores.
 
 Separación (sin cambios respecto a ADR 0002): motor y definición puros y probados sin Astro → isla Preact sobre `CalculatorShell` → página Astro sobre `CalculatorLayout`. La página consume la calculadora; no contiene lógica matemática.
 
 ### 2. Estados: `draft` y `published`, sin `verified`
 
-| Estado      | Página | robots              | Sitemap | Portada / listados | Destino de enlaces internos |
-| ----------- | ------ | ------------------- | ------- | ------------------ | --------------------------- |
-| `draft`     | Sí     | `noindex, nofollow` | No      | No                 | Solo desde otros borradores |
-| `published` | Sí     | `index, follow`\*   | Sí      | Sí                 | Sí                          |
+| Estado      | Página | robots              | Sitemap | Portada / listados | Destino de enlaces internos | Anuncios |
+| ----------- | ------ | ------------------- | ------- | ------------------ | --------------------------- | -------- |
+| `draft`     | Sí     | `noindex, nofollow` | No      | No                 | Solo desde otros borradores | No       |
+| `published` | Sí     | `index, follow`\*   | Sí      | Sí                 | Sí                          | Sí\*\*   |
 
-\* Solo en el despliegue de producción con dominio definitivo (ADR 0005); en cualquier otro entorno todo es `noindex`.
+\* Solo en el despliegue de producción con dominio definitivo (ADR 0005); en cualquier otro entorno todo es `noindex`. El canonical se construye con `PUBLIC_SITE_URL` y nunca con la URL de un despliegue de Vercel (guarda en `src/architecture.test.ts`). Mientras no se defina, apunta al dominio provisional `example.com` y el sitio no es indexable.
+
+\*\* Si los anuncios están activados globalmente. Todo se deriva de `status`: en `calculatorPageProps` (`noindex`, `monetizable`) y en `createSitemapFilter` (`src/lib/seo/sitemap.ts`). `src/components/publishing-flow.test.ts` registra una segunda calculadora ficticia y comprueba ambos estados sin tocar ninguna pieza global.
 
 No se añade un estado `verified`: la verificación es la Definition of Done (docs/calculator-definition-of-done.md). Pasar a `published` es un cambio explícito en el registro y nunca ocurre por crear archivos.
 
@@ -46,7 +49,12 @@ Cada calculadora parte de una ficha (`docs/calculators/ficha-plantilla.md`) que 
 
 ### 6. Structured data
 
-Sin cambios: solo `BreadcrumbList`, generado de las migas visibles. FAQPage, WebApplication, WebPage, SoftwareApplication y Organization no se añaden mientras no haya una justificación compatible con el contenido real (ADR 0005).
+Sin cambios: solo `BreadcrumbList`, generado de las migas visibles. Evaluado por separado:
+
+- **FAQPage:** descartado (ADR 0005: Google ya no muestra ese resultado enriquecido).
+- **WebApplication / SoftwareApplication:** el resultado enriquecido exige `offers` y además `aggregateRating` o `review`, que el sitio no tiene. Sigue como decisión pendiente en ADR 0005, sin uso.
+- **WebPage:** solo repetiría el título, la descripción y la URL que ya dan los metadatos; no aporta nada verificable.
+- **Organization:** solo cuando exista un titular identificado.
 
 ### 7. Publicidad (preparada, desactivada)
 
@@ -54,12 +62,21 @@ Sin cambios: solo `BreadcrumbList`, generado de las migas visibles. FAQPage, Web
 - **Móvil:** cada posición declara `mobile`; por defecto `false`, así que en pantallas estrechas no se muestra (`hidden lg:flex`).
 - **Requisitos de activación** (`adSlotBlockers`): id de editor, CMP certificada con IAB TCF, id del bloque y altura reservada. Con anuncios activados y cualquiera de ellos sin definir, **el build falla**. No hay ningún id: no se inventan.
 - **Etiqueta:** «Anuncios». Las «Políticas sobre el emplazamiento publicitario» de AdSense (https://support.google.com/adsense/answer/1346295, consultado el 01/10/2026) indican que los anuncios solo pueden etiquetarse como «Anuncios» o «Enlaces patrocinados»; antes el sitio usaba «Publicidad». La misma página pide que los anuncios se distingan claramente del contenido y avisa del riesgo de clics accidentales al colocarlos cerca de enlaces o botones.
-- **Independencia:** `AdSlot` nunca carga scripts. La carga de AdSense será una pieza aparte, condicionada al consentimiento. La calculadora funciona igual si el anuncio tarda, falla, no hay consentimiento o el navegador lo bloquea, porque no depende de él.
+- **Solo en calculadoras publicadas:** `CalculatorLayout` pasa a `AdSlot` el permiso `monetizable` de `calculatorPageProps` (falso por defecto). Un borrador nunca muestra anuncios.
+- **Script global único:** `AdsScript.astro`, incluido una sola vez en `BaseLayout`. Hoy no renderiza nada. Con anuncios activados, el build falla si faltan el id de editor o la CMP, y **también** si está todo, hasta que se implemente ahí la carga (comprobando antes la documentación vigente de Google y ampliando la CSP). Las guardas de `src/architecture.test.ts` impiden referenciar el script de AdSense en cualquier otro archivo y colocar `AdSlot` fuera de `CalculatorLayout`.
+- **Huecos descartados por ahora:** `top` y `before-calculator` (anuncios antes de que el usuario identifique la herramienta) y `mid-content` (no hace falta todavía).
+- **Anuncios automáticos (Auto ads):** decisión pendiente. Colocan anuncios en posiciones que el sitio no controla y pueden saltarse estas reglas (entre secciones del contenido, en móvil). Recomendación: solo anuncios manuales.
+- **Configuración:** centralizada en `src/config/features.ts` y revisada como código, no en variables de entorno: un cambio de entorno no puede activar anuncios sin pasar por las comprobaciones del build.
+- **Independencia:** `AdSlot` nunca carga scripts. La calculadora funciona igual si el anuncio tarda, falla, no hay consentimiento o el navegador lo bloquea, porque no depende de él.
 - **Consentimiento:** `CmpIntegration` solo admite una CMP con `googleCertified: true` e `iabTcf: true` (requisito verificado; docs/privacidad-y-legal.md). No se implementa ninguna CMP ni ningún banner propio.
 
-### 8. Search Console
+### 8. Analítica
 
-No hace falta código. `check:dist` comprueba ahora además que el canonical de cada HTML apunta a su propia ruta y que el sitemap solo enumera páginas que existen. La verificación de la propiedad (preferiblemente por DNS) y el envío del sitemap se harán cuando exista el dominio.
+No se implementa ninguna capa de eventos: hoy no tendría consumidor y sería código muerto. Cuando se integre GA4 (después de la CMP), los eventos (`calculator_view`, `calculator_submit`, `calculator_error`, `calculator_result`) se emitirán desde `CalculatorShell` mediante una función inyectada, sin enviar nunca los valores introducidos.
+
+### 9. Search Console
+
+No hace falta código. `check:dist` comprueba ahora además que el canonical de cada HTML apunta a su propia ruta, que todo enlace interno apunta a algo que existe en el build y que el sitemap solo enumera páginas que existen. La verificación de la propiedad (preferiblemente por DNS) y el envío del sitemap se harán cuando exista el dominio.
 
 ## Alternativas
 
@@ -75,4 +92,4 @@ Cada dato de una calculadora se escribe una vez y todo lo demás (página, porta
 ## Consecuencias
 
 - **Añadir una calculadora:** ficha → motor, definición, tipos y constantes → tests → isla y textos → página sobre `CalculatorLayout` con `calculatorPageProps` → fuentes → entrada `draft` en el registro → Definition of Done → `published`. Se reutilizan el shell, los validadores, el layout, el SEO, las migas, la metodología, las fuentes, el aviso, `DataTable` y la infraestructura de tests.
-- **Decisiones pendientes:** umbral para crear páginas de categoría y `/calculadoras`; qué posiciones de anuncio se activan y si alguna se muestra en móvil; CMP concreta. Todas antes de activar AdSense.
+- **Decisiones pendientes:** dominio definitivo (`PUBLIC_SITE_URL`); umbral para crear páginas de categoría y `/calculadoras`; qué posiciones de anuncio se activan y si alguna se muestra en móvil; anuncios automáticos sí o no; CMP concreta. Todas antes de activar AdSense.

@@ -5,10 +5,10 @@
  *
  *   <CalculatorLayout {...calculatorPageProps('compound-interest')}>
  *
- * Así una calculadora en borrador nunca puede quedar indexable por olvido:
- * `noindex` sale de `status`.
+ * Así una calculadora en borrador nunca puede quedar indexable ni mostrar
+ * anuncios por olvido: `noindex` y `monetizable` salen de `status`.
  */
-import { calculatorRegistry, findCalculatorEntry } from '@/calculators/registry';
+import { calculatorPath, calculatorRegistry, findCalculatorEntry } from '@/calculators/registry';
 import type { CalculatorMetadata } from '@/core/calculator/definition';
 import type { CalculatorEntry } from '@/core/calculator/registry-integrity';
 
@@ -20,6 +20,8 @@ export interface CalculatorPageProps {
   readonly heading: string;
   readonly breadcrumbs: readonly BreadcrumbItem[];
   readonly calculator: CalculatorMetadata;
+  /** Solo las calculadoras publicadas pueden mostrar anuncios (ADR 0009). */
+  readonly monetizable: boolean;
 }
 
 /** Nombre de la primera miga (la portada). */
@@ -31,7 +33,7 @@ export function calculatorPageProps(
 ): CalculatorPageProps {
   const entry = findCalculatorEntry(id, registry);
   if (entry === undefined) throw new Error(`Calculadora no registrada: "${id}"`);
-  const path = `/${entry.calculator.slug}`;
+  const path = calculatorPath(entry.calculator);
   return {
     page: {
       title: entry.seo.title,
@@ -47,5 +49,6 @@ export function calculatorPageProps(
       { name: entry.heading, path },
     ],
     calculator: entry.calculator,
+    monetizable: entry.status === 'published',
   };
 }

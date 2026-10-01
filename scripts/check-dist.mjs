@@ -7,6 +7,7 @@
  *   - alguna página HTML carece de lang, description, canonical, robots,
  *     CSP o de exactamente un <h1>;
  *   - el canonical de una página no apunta a su propia ruta (URL duplicada);
+ *   - un enlace interno (<a href="/…">) apunta a algo que no existe;
  *   - el sitemap enumera una URL que no existe en el build;
  *   - faltan robots.txt, sitemap o 404, o robots.txt bloquea el rastreo.
  *
@@ -81,6 +82,24 @@ for (const file of files.filter((f) => f.endsWith('.html'))) {
   const expected = page === 'index' ? '/' : `/${page}`;
   if (new URL(canonical).pathname !== expected) {
     problems.push(`${rel(file)}: canonical ${canonical} no corresponde a ${expected}`);
+  }
+}
+
+// Todo enlace interno apunta a algo que existe en el build ("/x" → x.html o
+// el archivo x). Un slug mal escrito en un enlace rompe la verificación.
+for (const file of files.filter((f) => f.endsWith('.html'))) {
+  for (const [, href] of readFileSync(file, 'utf8').matchAll(/<a\s[^>]*href="(\/[^"]*)"/g)) {
+    if (href.startsWith('//')) continue;
+    const pathname = href.split(/[?#]/)[0];
+    const target =
+      pathname === '/'
+        ? 'index.html'
+        : existsSync(join(root, pathname.slice(1)))
+          ? pathname.slice(1)
+          : `${pathname.slice(1)}.html`;
+    if (!existsSync(join(root, target))) {
+      problems.push(`${rel(file)}: enlace interno roto ${href}`);
+    }
   }
 }
 

@@ -1,0 +1,35 @@
+---
+/**
+ * ÚNICO punto de integración del script global de AdSense (ADR 0009). Se
+ * incluye una sola vez, en BaseLayout; ninguna calculadora ni ningún AdSlot
+ * carga scripts publicitarios.
+ *
+ * Estado: anuncios desactivados → no renderiza NADA.
+ *
+ * Con anuncios activados:
+ *   - si falta el id de editor o la CMP certificada, el build falla;
+ *   - si todo está definido, el build TAMBIÉN falla hasta que se implemente
+ *     aquí la carga del script, comprobando antes la documentación vigente de
+ *     Google (código del script, carga asíncrona, consentimiento) y ampliando
+ *     la CSP. Así es imposible activar anuncios a medias.
+ */
+import { adsConfig, consentConfig, type AdsConfig, type ConsentConfig } from '@/config/features';
+import { adsScriptBlockers } from '@/lib/ads/readiness';
+
+interface Props {
+  /** Inyectables en tests. */
+  config?: AdsConfig;
+  consent?: ConsentConfig;
+}
+
+const { config = adsConfig, consent = consentConfig } = Astro.props;
+const blockers = adsScriptBlockers(config, consent);
+
+if (config.enabled) {
+  throw new Error(
+    blockers.length > 0
+      ? `AdsScript: anuncios activados sin completar requisitos: ${blockers.join(', ')} (PENDIENTE DE DEFINIR).`
+      : 'AdsScript: la carga del script de AdSense no está implementada (PENDIENTE, ADR 0009).',
+  );
+}
+---

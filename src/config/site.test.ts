@@ -23,15 +23,51 @@ describe('resolveSiteUrl', () => {
 });
 
 describe('isIndexable', () => {
+  it('con dominio definitivo pero marca provisional, NO es indexable', () => {
+    expect(
+      isIndexable({
+        siteUrl: 'https://calculds.com',
+        vercelEnv: 'production',
+        isPlaceholderIdentity: true,
+      }),
+    ).toBe(false);
+  });
+
   it('solo es indexable en producción de Vercel con dominio definitivo', () => {
-    expect(isIndexable({ siteUrl: 'https://midominio.example', vercelEnv: 'production' })).toBe(
-      true,
-    );
-    expect(isIndexable({ siteUrl: 'https://midominio.example', vercelEnv: 'preview' })).toBe(false);
-    expect(isIndexable({ siteUrl: 'https://midominio.example', vercelEnv: 'development' })).toBe(
-      false,
-    );
-    expect(isIndexable({ siteUrl: 'https://midominio.example', vercelEnv: undefined })).toBe(false);
-    expect(isIndexable({ siteUrl: PLACEHOLDER_SITE_URL, vercelEnv: 'production' })).toBe(false);
+    expect(
+      isIndexable({
+        siteUrl: 'https://midominio.example',
+        vercelEnv: 'production',
+        isPlaceholderIdentity: false,
+      }),
+    ).toBe(true);
+    expect(
+      isIndexable({
+        siteUrl: 'https://midominio.example',
+        vercelEnv: 'preview',
+        isPlaceholderIdentity: false,
+      }),
+    ).toBe(false);
+    expect(
+      isIndexable({
+        siteUrl: 'https://midominio.example',
+        vercelEnv: 'development',
+        isPlaceholderIdentity: false,
+      }),
+    ).toBe(false);
+    expect(
+      isIndexable({
+        siteUrl: 'https://midominio.example',
+        vercelEnv: undefined,
+        isPlaceholderIdentity: false,
+      }),
+    ).toBe(false);
+    expect(
+      isIndexable({
+        siteUrl: PLACEHOLDER_SITE_URL,
+        vercelEnv: 'production',
+        isPlaceholderIdentity: false,
+      }),
+    ).toBe(false);
   });
 });

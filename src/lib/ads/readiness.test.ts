@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { adsConfig, consentConfig, type AdsConfig } from '@/config/features';
 
-import { adSlotBlockers } from './readiness';
+import { adsScriptBlockers, adSlotBlockers } from './readiness';
 
 // Ids FICTICIOS: marcadores evidentes de test, nunca reales.
 const enabled: AdsConfig = {
@@ -38,6 +38,25 @@ describe('adSlotBlockers', () => {
     expect(
       adSlotBlockers(
         'sidebar',
+        { ...enabled, publisherId: 'ca-pub-TEST' },
+        { cmp: { name: 'CMP de prueba', googleCertified: true, iabTcf: true } },
+      ),
+    ).toEqual([]);
+  });
+});
+
+describe('adsScriptBlockers', () => {
+  it('configuración real: desactivado', () => {
+    expect(adsScriptBlockers(adsConfig, consentConfig)).toEqual(['ads_disabled']);
+  });
+
+  it('activado: exige id de editor y CMP certificada', () => {
+    expect(adsScriptBlockers(enabled, { cmp: null })).toEqual([
+      'missing_publisher_id',
+      'missing_cmp',
+    ]);
+    expect(
+      adsScriptBlockers(
         { ...enabled, publisherId: 'ca-pub-TEST' },
         { cmp: { name: 'CMP de prueba', googleCertified: true, iabTcf: true } },
       ),

@@ -42,6 +42,7 @@ test('hidrata bajo CSP sin violaciones, errores ni peticiones externas', async (
 
 test('F10: resultado completo con formato español', async ({ page }) => {
   await page.goto(PATH);
+  await expect(page.getByRole('button', { name: 'Calcular interés compuesto' })).toBeEnabled(); // hidratada
   await fillF10(page);
   await page.getByRole('button', { name: 'Calcular interés compuesto' }).click();
   await expect(valueOf(page, 'Valor final')).toHaveText('5.469,47 €');
@@ -89,6 +90,7 @@ test('solo con teclado: Tab recorre los campos en orden y Enter calcula (F1)', a
 
 test('las flechas cambian de opción y el foco de cada opción es visible', async ({ page }) => {
   await page.goto(PATH);
+  await expect(page.getByRole('button', { name: 'Calcular interés compuesto' })).toBeEnabled(); // hidratada
   const annual = group(page, 'Frecuencia de capitalización y aportación').getByLabel('Anual');
   await page.getByLabel('Tipo de interés anual').focus();
   await page.keyboard.press('Tab');

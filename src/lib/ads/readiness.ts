@@ -25,12 +25,28 @@ export function adSlotBlockers(
   ads: AdsConfig,
   consent: ConsentConfig,
 ): readonly AdBlocker[] {
-  if (!ads.enabled) return ['ads_disabled'];
+  const global = adsScriptBlockers(ads, consent);
+  if (global.includes('ads_disabled')) return global;
   const slot = ads.slots[position];
-  const blockers: AdBlocker[] = [];
-  if (ads.publisherId === null) blockers.push('missing_publisher_id');
-  if (consent.cmp === null) blockers.push('missing_cmp');
+  const blockers: AdBlocker[] = [...global];
   if (slot.adUnitId === null) blockers.push('missing_ad_unit');
   if (slot.reservedHeightClass === null) blockers.push('missing_reserved_height');
+  return blockers;
+}
+
+export type AdsScriptBlocker = Extract<
+  AdBlocker,
+  'ads_disabled' | 'missing_publisher_id' | 'missing_cmp'
+>;
+
+/** Requisitos globales para cargar el script de AdSense (una vez por página). */
+export function adsScriptBlockers(
+  ads: AdsConfig,
+  consent: ConsentConfig,
+): readonly AdsScriptBlocker[] {
+  if (!ads.enabled) return ['ads_disabled'];
+  const blockers: AdsScriptBlocker[] = [];
+  if (ads.publisherId === null) blockers.push('missing_publisher_id');
+  if (consent.cmp === null) blockers.push('missing_cmp');
   return blockers;
 }

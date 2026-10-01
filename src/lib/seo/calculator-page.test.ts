@@ -28,11 +28,14 @@ describe('calculatorPageProps', () => {
         { name: 'Calculadora X', path: '/calculadora-x' },
       ],
       calculator: { id: 'x', slug: 'calculadora-x', version: '1.0.0', related: [] },
+      monetizable: true,
     });
   });
 
-  it('un borrador es siempre noindex', () => {
-    expect(calculatorPageProps('x', [entry('draft')]).page.noindex).toBe(true);
+  it('un borrador es siempre noindex y nunca muestra anuncios', () => {
+    const props = calculatorPageProps('x', [entry('draft')]);
+    expect(props.page.noindex).toBe(true);
+    expect(props.monetizable).toBe(false);
   });
 
   it('la calculadora real de interés compuesto es borrador: noindex', () => {

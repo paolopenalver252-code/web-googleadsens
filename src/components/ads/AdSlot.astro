@@ -15,6 +15,8 @@
  *   patrocinados" (https://support.google.com/adsense/answer/1346295,
  *   consultado el 01/10/2026).
  * - Con `mobile: false`, el espacio no se muestra en pantallas estrechas.
+ * - `pageAllowsAds`: la página debe permitirlo expresamente. Las calculadoras
+ *   en borrador nunca muestran anuncios (calculatorPageProps → monetizable).
  */
 import { site } from '@/config/env';
 import {
@@ -28,12 +30,14 @@ import { adSlotBlockers } from '@/lib/ads/readiness';
 
 interface Props {
   position: AdPosition;
+  /** Si la página admite anuncios (solo calculadoras publicadas). */
+  pageAllowsAds: boolean;
   /** Inyectables en tests. */
   config?: AdsConfig;
   consent?: ConsentConfig;
 }
 
-const { position, config = adsConfig, consent = consentConfig } = Astro.props;
+const { position, pageAllowsAds, config = adsConfig, consent = consentConfig } = Astro.props;
 const blockers = adSlotBlockers(position, config, consent);
 const slot = config.slots[position];
 
@@ -44,7 +48,7 @@ if (config.enabled && blockers.length > 0) {
 }
 ---
 
-{blockers.length === 0 && (
+{pageAllowsAds && blockers.length === 0 && (
   <aside
     aria-label={site.locale.messages.ui.adLabel}
     data-ad-position={position}

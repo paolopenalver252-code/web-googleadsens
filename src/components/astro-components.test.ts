@@ -16,6 +16,8 @@ import type { SourceRecord } from '@/core/sources/types';
 import { buildBreadcrumbList } from '@/lib/seo/schema/breadcrumb';
 
 import AdSlot from './ads/AdSlot.astro';
+import AdsScript from './ads/AdsScript.astro';
+import CalculatorDirectory from './calculator/CalculatorDirectory.astro';
 import Disclaimer from './calculator/Disclaimer.astro';
 import Methodology from './calculator/Methodology.astro';
 import RelatedCalculators from './calculator/RelatedCalculators.astro';
@@ -70,14 +72,16 @@ describe('AdSlot', () => {
   };
 
   it('desactivado (configuración actual): no renderiza nada ni carga scripts', async () => {
-    const html = await container.renderToString(AdSlot, { props: { position: 'after-result' } });
+    const html = await container.renderToString(AdSlot, {
+      props: { position: 'after-result', pageAllowsAds: true },
+    });
     expect(html.trim()).toBe('');
   });
 
   it('activado sin altura reservada definida: el build falla en lugar de inventar un tamaño', async () => {
     await expect(
       container.renderToString(AdSlot, {
-        props: { position: 'sidebar', config: ready, consent: cmp },
+        props: { position: 'sidebar', pageAllowsAds: true, config: ready, consent: cmp },
       }),
     ).rejects.toThrow(/missing_reserved_height/);
   });
@@ -85,7 +89,12 @@ describe('AdSlot', () => {
   it('activado sin CMP certificada: el build falla', async () => {
     await expect(
       container.renderToString(AdSlot, {
-        props: { position: 'after-result', config: ready, consent: { cmp: null } },
+        props: {
+          position: 'after-result',
+          pageAllowsAds: true,
+          config: ready,
+          consent: { cmp: null },
+        },
       }),
     ).rejects.toThrow(/missing_cmp/);
   });
@@ -93,7 +102,7 @@ describe('AdSlot', () => {
   it('con todos los requisitos: contenedor etiquetado "Anuncios", altura reservada y sin ningún script', async () => {
     const doc = dom(
       await container.renderToString(AdSlot, {
-        props: { position: 'after-result', config: ready, consent: cmp },
+        props: { position: 'after-result', pageAllowsAds: true, config: ready, consent: cmp },
       }),
     );
     const aside = doc.querySelector('aside');
@@ -105,13 +114,58 @@ describe('AdSlot', () => {
     expect(doc.querySelector('script')).toBeNull();
   });
 
+  it('una página que no admite anuncios (borrador) no muestra ninguno aunque todo esté listo', async () => {
+    const html = await container.renderToString(AdSlot, {
+      props: { position: 'after-result', pageAllowsAds: false, config: ready, consent: cmp },
+    });
+    expect(html.trim()).toBe('');
+  });
+
   it('mobile: true ⇒ visible también en pantallas estrechas', async () => {
     const doc = dom(
       await container.renderToString(AdSlot, {
-        props: { position: 'end-of-content', config: ready, consent: cmp },
+        props: { position: 'end-of-content', pageAllowsAds: true, config: ready, consent: cmp },
       }),
     );
     expect(doc.querySelector('aside')?.classList.contains('hidden')).toBe(false);
+  });
+});
+
+describe('AdsScript (punto único del script global)', () => {
+  const cmp: ConsentConfig = {
+    cmp: { name: 'CMP de prueba', googleCertified: true, iabTcf: true },
+  };
+  const enabled = (publisherId: string | null): AdsConfig => ({
+    enabled: true,
+    publisherId,
+    slots: {
+      'after-result': { reservedHeightClass: null, adUnitId: null, mobile: false },
+      sidebar: { reservedHeightClass: null, adUnitId: null, mobile: false },
+      'end-of-content': { reservedHeightClass: null, adUnitId: null, mobile: false },
+    },
+  });
+
+  it('desactivado (configuración actual): no renderiza nada', async () => {
+    expect((await container.renderToString(AdsScript)).trim()).toBe('');
+  });
+
+  it('activado sin id de editor o sin CMP: el build falla', async () => {
+    await expect(
+      container.renderToString(AdsScript, { props: { config: enabled(null), consent: cmp } }),
+    ).rejects.toThrow(/missing_publisher_id/);
+    await expect(
+      container.renderToString(AdsScript, {
+        props: { config: enabled('ca-pub-TEST'), consent: { cmp: null } },
+      }),
+    ).rejects.toThrow(/missing_cmp/);
+  });
+
+  it('activado con todo definido: el build falla hasta implementar la carga (nunca a medias)', async () => {
+    await expect(
+      container.renderToString(AdsScript, {
+        props: { config: enabled('ca-pub-TEST'), consent: cmp },
+      }),
+    ).rejects.toThrow(/no está implementada/);
   });
 });
 
@@ -278,5 +332,48 @@ describe('Footer', () => {
     const link = doc.querySelector('a');
     expect(link?.getAttribute('href')).toBe('/aviso-legal');
     expect(link?.classList.contains('min-h-11')).toBe(true);
+  });
+});
+
+describe('CalculatorDirectory (portada)', () => {
+  // Registro FICTICIO: el real solo tiene borradores, así que el camino
+  // "publicada → aparece en la portada" se prueba aquí.
+  const entry = (id: string, slug: string, status: CalculatorEntry['status']): CalculatorEntry => ({
+    calculator: { id, slug, version: '1.0.0', related: [] },
+    name: `Nombre ${id}`,
+    heading: `Calculadora ${id}`,
+    category: 'finanzas',
+    seo: { title: `Título ${id}`, description: `Descripción de ${id}.` },
+    status,
+  });
+
+  it('solo borradores (estado actual): mensaje de vacío, sin categorías ni enlaces', async () => {
+    const doc = dom(
+      await container.renderToString(CalculatorDirectory, {
+        props: { registry: [entry('borrador', 'calculadora-borrador', 'draft')] },
+      }),
+    );
+    expect(doc.body.textContent).toContain('Todavía no hay calculadoras publicadas.');
+    expect(doc.querySelector('h3')).toBeNull();
+    expect(doc.querySelectorAll('a')).toHaveLength(0);
+  });
+
+  it('una calculadora publicada aparece en su categoría, enlazando EXACTAMENTE a /<slug>', async () => {
+    const doc = dom(
+      await container.renderToString(CalculatorDirectory, {
+        props: {
+          registry: [
+            entry('publicada', 'calculadora-publicada', 'published'),
+            entry('borrador', 'calculadora-borrador', 'draft'),
+          ],
+        },
+      }),
+    );
+    expect(doc.body.textContent).not.toContain('Todavía no hay calculadoras publicadas.');
+    expect(doc.querySelector('h3')?.textContent).toBe('Finanzas');
+    const links = [...doc.querySelectorAll('a')];
+    expect(links.map((link) => link.getAttribute('href'))).toEqual(['/calculadora-publicada']);
+    expect(links[0]?.textContent).toContain('Nombre publicada');
+    expect(links[0]?.textContent).toContain('Descripción de publicada.');
   });
 });
