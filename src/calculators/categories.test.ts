@@ -55,7 +55,12 @@ describe('categorías', () => {
     ]);
   });
 
-  it('con el registro real (solo borradores) no hay ningún grupo que listar', () => {
-    expect(publishedByCategory(calculatorRegistry)).toEqual([]);
+  it('con el registro real, Finanzas lista la calculadora de interés compuesto', () => {
+    expect(
+      publishedByCategory(calculatorRegistry).map((group) => ({
+        category: group.category.id,
+        ids: group.entries.map((item) => item.calculator.id),
+      })),
+    ).toEqual([{ category: 'finanzas', ids: ['compound-interest'] }]);
   });
 });

@@ -49,7 +49,7 @@ const overflow = (page: Page) =>
   page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 
 test.describe('metadatos y SEO', () => {
-  test('title, description, canonical, robots (borrador ⇒ noindex), idioma y CSP', async ({
+  test('title, description, canonical, robots (sitio sin dominio definitivo ⇒ noindex), idioma y CSP', async ({
     page,
     baseURL,
   }) => {
@@ -126,14 +126,20 @@ test.describe('metadatos y SEO', () => {
     ]);
   });
 
-  test('el borrador no aparece en el sitemap ni en la portada', async ({ page, request }) => {
+  test('publicada: aparece en el sitemap y en la portada bajo Finanzas', async ({
+    page,
+    request,
+  }) => {
     const sitemap = await (await request.get('/sitemap-0.xml')).text();
-    expect(sitemap).not.toContain('calculadora-interes-compuesto');
+    expect(sitemap).toContain('<loc>https://example.com/calculadora-interes-compuesto</loc>');
     await page.goto('/');
-    expect(await page.locator('a[href="/calculadora-interes-compuesto"]').count()).toBe(0);
-    // Sin calculadoras publicadas no se lista ninguna categoría (nada de secciones vacías).
-    await expect(page.getByText('Todavía no hay calculadoras publicadas.')).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Finanzas' })).toHaveCount(0);
+    await expect(page.getByText('Todavía no hay calculadoras publicadas.')).toHaveCount(0);
+    await expect(page.getByRole('heading', { level: 3, name: 'Finanzas' })).toBeVisible();
+    await page.getByRole('link', { name: /Interés compuesto/ }).click();
+    await expect(page).toHaveURL(/\/calculadora-interes-compuesto$/);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      'Calculadora de interés compuesto',
+    );
   });
 
   test('la introducción dice qué se calcula y qué resultado se obtiene', async ({ page }) => {

@@ -38,9 +38,10 @@ describe('calculatorPageProps', () => {
     expect(props.monetizable).toBe(false);
   });
 
-  it('la calculadora real de interés compuesto es borrador: noindex', () => {
+  it('la calculadora real de interés compuesto está publicada: indexable si el sitio lo es', () => {
     const props = calculatorPageProps('compound-interest');
-    expect(props.page).toMatchObject({ path: '/calculadora-interes-compuesto', noindex: true });
+    expect(props.page).toMatchObject({ path: '/calculadora-interes-compuesto', noindex: false });
+    expect(props.monetizable).toBe(true);
     expect(props.heading).toBe('Calculadora de interés compuesto');
   });
 

@@ -4,7 +4,7 @@
 
 Web estática de calculadoras online para España, con Astro, islas de Preact y TypeScript estricto. Todos los cálculos se hacen en el navegador. No hay backend, cookies, analítica ni anuncios. La publicidad (AdSense) está preparada pero desactivada: ver [docs/privacidad-y-legal.md](docs/privacidad-y-legal.md).
 
-**Estado:** infraestructura completa y una calculadora en **borrador**: interés compuesto (`/calculadora-interes-compuesto`, `noindex` y fuera del sitemap hasta que se publique; ver [ADR 0008](docs/adr/0008-interes-compuesto.md)).
+**Estado:** infraestructura completa y una calculadora **publicada**: interés compuesto (`/calculadora-interes-compuesto`; ver [ADR 0008](docs/adr/0008-interes-compuesto.md)). El sitio sigue siendo `noindex` hasta conectar el dominio definitivo y completar la identidad (ADR 0005).
 
 ## Requisitos
 
@@ -36,7 +36,7 @@ src/
   core/            Lógica pura (sin Astro, Preact ni DOM): Decimal, Result, parseo,
                    validación, contrato de calculadora, reglas versionadas, fuentes
   i18n/            Locale es-ES, mensajes y formato (moneda, %, números, fechas)
-  calculators/     registry.ts, categories.ts + una carpeta por calculadora (compound-interest: borrador)
+  calculators/     registry.ts, categories.ts + una carpeta por calculadora (compound-interest: publicada)
   sources/         Registro de fuentes (vacío: nada sin verificar)
   components/      calculator/ (CalculatorShell, NumberField…), layout/, seo/, ads/
   layouts/         BaseLayout, CalculatorLayout

@@ -36,9 +36,9 @@ describe('createSitemapFilter', () => {
     expect(filter(url('/test-harnessing'))).toBe(true);
   });
 
-  it('con el registro real, interés compuesto (borrador) queda fuera', () => {
+  it('con el registro real, interés compuesto (publicada) entra en el sitemap', () => {
     const real = createSitemapFilter({ excludedPrefixes: [] });
-    expect(real(url('/calculadora-interes-compuesto'))).toBe(false);
+    expect(real(url('/calculadora-interes-compuesto'))).toBe(true);
     expect(real(url('/'))).toBe(true);
   });
 });

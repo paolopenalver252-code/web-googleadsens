@@ -89,7 +89,8 @@ describe('segunda calculadora: draft → published sin tocar la infraestructura'
     expect(meta.robots).toBe('noindex, nofollow');
     expect(props.monetizable).toBe(false);
 
-    expect(await directoryLinks(registry)).toEqual({ categories: [], hrefs: [] });
+    // La portada solo lista la calculadora real (publicada), nunca el borrador.
+    expect((await directoryLinks(registry)).hrefs).not.toContain(PATH);
     expect(sitemapAccepts(registry)).toBe(false);
   });
 
@@ -125,7 +126,10 @@ describe('segunda calculadora: draft → published sin tocar la infraestructura'
     expect(props.monetizable).toBe(true);
     expect(props.breadcrumbs.at(-1)).toEqual({ name: 'Calculadora segunda', path: PATH });
 
-    expect(await directoryLinks(registry)).toEqual({ categories: ['Finanzas'], hrefs: [PATH] });
+    expect(await directoryLinks(registry)).toEqual({
+      categories: ['Finanzas'],
+      hrefs: ['/calculadora-interes-compuesto', PATH],
+    });
     expect(sitemapAccepts(registry)).toBe(true);
   });
 
@@ -138,10 +142,10 @@ describe('segunda calculadora: draft → published sin tocar la infraestructura'
     expect(doc.querySelector('a')?.getAttribute('href')).toBe(PATH);
   });
 
-  it('la calculadora real sigue en borrador: añadir otra no la publica', () => {
-    const real = registryWith('published').find(
-      (item) => item.calculator.id === 'compound-interest',
-    );
-    expect(real?.status).toBe('draft');
+  it('añadir otra calculadora no cambia el estado de la real (publicada)', () => {
+    for (const status of ['draft', 'published'] as const) {
+      const real = registryWith(status).find((item) => item.calculator.id === 'compound-interest');
+      expect(real?.status).toBe('published');
+    }
   });
 });

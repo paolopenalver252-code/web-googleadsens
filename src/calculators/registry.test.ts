@@ -77,12 +77,12 @@ describe('registro de calculadoras', () => {
     expect(blocked).toEqual([]);
   });
 
-  it('interés compuesto: registrada como borrador y apuntando a su página real', () => {
+  it('interés compuesto: publicada y apuntando a su página real', () => {
     const entry = findCalculatorEntry('compound-interest');
-    expect(entry?.status).toBe('draft');
+    expect(entry?.status).toBe('published');
     expect(entry?.calculator.slug).toBe('calculadora-interes-compuesto');
-    expect(publishedCalculators()).toEqual([]);
-    expect(unpublishedCalculatorPaths()).toEqual(['/calculadora-interes-compuesto']);
+    expect(publishedCalculators().map((item) => item.calculator.id)).toEqual(['compound-interest']);
+    expect(unpublishedCalculatorPaths()).toEqual([]);
   });
 
   it('ninguna entrada apunta a una página de prueba', () => {

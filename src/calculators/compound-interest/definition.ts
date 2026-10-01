@@ -1,10 +1,10 @@
 /**
  * Calculadora de interés compuesto v1 — definición (campos + validación).
  *
- * Estado: BORRADOR (`draft` en src/calculators/registry.ts). Tiene página
- * (src/pages/calculadora-interes-compuesto.astro, noindex) pero no está
- * publicada: sus fuentes no están verificadas. Especificación: "Mathematical
- * Closure"; convenciones en docs/adr/0008-interes-compuesto.md.
+ * Estado: PUBLICADA (`published` en src/calculators/registry.ts) el
+ * 01/10/2026. Página: src/pages/calculadora-interes-compuesto.astro.
+ * Especificación: "Mathematical Closure"; convenciones en
+ * docs/adr/0008-interes-compuesto.md.
  *
  * Campos (el orden de las claves es el orden de la UI):
  *   capital inicial → aportación periódica → tipo anual → tipo de tasa

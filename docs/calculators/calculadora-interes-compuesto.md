@@ -1,6 +1,7 @@
 # Ficha — Calculadora de interés compuesto
 
-- **Estado:** `draft` (ver [ADR 0008](../adr/0008-interes-compuesto.md)).
+- **Estado:** `published` desde el 01/10/2026, por decisión del titular (ver [ADR 0008](../adr/0008-interes-compuesto.md)).
+- **Definition of Done:** 5 fuentes verificadas por el titular (01/10/2026) ✅ · revisión manual de accesibilidad hecha por el titular ✅ · **revisión legal del aviso de la calculadora: PENDIENTE**.
 - **Página:** `src/pages/calculadora-interes-compuesto.astro`.
 
 | Campo                 | Contenido                                                                                                                                                                                                                                                                                        |
@@ -19,6 +20,6 @@
 | Fórmula               | ADR 0008 y la sección «Metodología» de la página (`engine.ts`, `rates.ts`)                                                                                                                                                                                                                       |
 | Casos de uso          | Comparar escenarios de ahorro a tipo constante; entender TIN frente a tipo efectivo; ver el efecto de la frecuencia y del momento de la aportación                                                                                                                                               |
 | Preguntas frecuentes  | TIN frente a tipo efectivo; qué es capitalizar mensualmente; aportar al inicio o al final; tipo 0 %; aportaciones periódicas; duración compatible; comisiones e impuestos                                                                                                                        |
-| Fuentes               | 4 candidatas en `__tests__/fixtures/external-examples.ts`. **Ninguna verificada** (ADR 0008 → Fuentes)                                                                                                                                                                                           |
+| Fuentes               | 5 fuentes verificadas el 01/10/2026 (`src/sources/registry.ts`)                                                                                                                                                                                                                                  |
 | Contenido relacionado | Interés simple, TIN y TAE, inflación (no existen páginas: no se enlazan)                                                                                                                                                                                                                         |
 | Fuera de alcance      | Comisiones, impuestos, inflación, tipos variables o negativos, aportaciones variables y retiradas                                                                                                                                                                                                |

@@ -32,8 +32,9 @@ export const calculatorRegistry: readonly SiteCalculatorEntry[] = [
       description:
         'Calcula cómo puede evolucionar un capital con interés compuesto y aportaciones periódicas, con TIN o tipo efectivo anual, varias frecuencias y tabla año a año.',
     },
-    // Borrador: fuentes sin verificar y aviso pendiente de revisión legal.
-    status: 'draft',
+    // Publicada el 01/10/2026 por decisión del titular: 5 fuentes verificadas y
+    // revisión manual de accesibilidad hecha. Revisión legal del aviso PENDIENTE.
+    status: 'published',
   },
 ];
 
