@@ -1,0 +1,34 @@
+---
+/**
+ * Migas de pan visibles + BreadcrumbList generado de los MISMOS datos, para
+ * que el structured data nunca describa algo distinto de lo que se ve.
+ */
+import JsonLd from '@/components/seo/JsonLd.astro';
+import { site } from '@/config/env';
+import { buildBreadcrumbList, type BreadcrumbItem } from '@/lib/seo/schema/breadcrumb';
+
+interface Props {
+  items: readonly BreadcrumbItem[];
+}
+
+const { items } = Astro.props;
+const lastIndex = items.length - 1;
+---
+
+<nav aria-label={site.locale.messages.ui.breadcrumbsLabel} class="text-sm">
+  <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-muted">
+    {items.map((item, index) => (
+      <li class="flex items-center gap-2">
+        {index > 0 && <span aria-hidden="true">/</span>}
+        {index === lastIndex ? (
+          <span aria-current="page" class="text-text">
+            {item.name}
+          </span>
+        ) : (
+          <a href={item.path}>{item.name}</a>
+        )}
+      </li>
+    ))}
+  </ol>
+</nav>
+<JsonLd data={buildBreadcrumbList(items, site.url)} />

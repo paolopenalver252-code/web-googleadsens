@@ -1,0 +1,417 @@
+---
+/**
+ * Página de la calculadora de interés compuesto. Title, description, ruta,
+ * robots, H1 y migas salen del registro (src/calculators/registry.ts) a través
+ * de calculatorPageProps: mientras sea borrador, es noindex y no entra en el
+ * sitemap ni en la portada (ADR 0009).
+ *
+ * Tipos de afirmación (docs/calculator-definition-of-done.md → Contenido):
+ *   - derived-from-engine: metodología, ejemplos numéricos, FAQ sobre el
+ *     comportamiento del cálculo;
+ *   - editorial-explanation: definiciones y explicaciones conceptuales;
+ *   - source-backed: ninguna todavía (no hay fuentes verificadas).
+ *
+ * Todo lo que se afirma sobre el cálculo describe el comportamiento real de
+ * engine.ts, rates.ts, constants.ts y definition.ts (ver ADR 0008). Los
+ * ejemplos numéricos coinciden con los fixtures de regresión F1 y F10 y con
+ * el motor (tests/e2e/compound-interest-page.spec.ts y presentation.test.ts).
+ */
+import CompoundInterestIsland from '@/calculators/compound-interest/ui/CompoundInterestIsland';
+import CalculatorLayout from '@/layouts/CalculatorLayout.astro';
+import { calculatorPageProps } from '@/lib/seo/calculator-page';
+
+const frequencies = [
+  { name: 'Anual', periods: '1 periodo al año', detail: 'Duración: años completos.' },
+  { name: 'Semestral', periods: '2 periodos al año', detail: 'Duración: múltiplo de 6 meses.' },
+  { name: 'Trimestral', periods: '4 periodos al año', detail: 'Duración: múltiplo de 3 meses.' },
+  {
+    name: 'Mensual',
+    periods: '12 periodos al año',
+    detail: 'Duración: cualquier número de meses.',
+  },
+];
+
+const faqs = [
+  {
+    question: '¿Qué diferencia hay entre TIN y tipo efectivo anual?',
+    answer:
+      'El TIN es un tipo nominal: se divide entre el número de periodos del año para obtener el tipo de cada periodo. El tipo efectivo anual indica cuánto crece el capital en un año completo con la capitalización ya incluida. Con capitalización anual coinciden; con varios periodos al año, un mismo porcentaje introducido como TIN produce un resultado algo mayor que si se introduce como tipo efectivo anual.',
+  },
+  {
+    question: '¿Qué significa capitalizar mensualmente?',
+    answer:
+      'Que cada mes los intereses generados se suman al saldo y, a partir de ese momento, también generan intereses. En esta calculadora la frecuencia elegida es la misma para la capitalización y para las aportaciones: con frecuencia mensual, las aportaciones también son mensuales.',
+  },
+  {
+    question: '¿Es mejor aportar al principio o al final del periodo?',
+    answer:
+      'La calculadora no hace recomendaciones: permite simular ambos casos. Matemáticamente, con un tipo mayor que 0 %, una aportación al inicio del periodo genera intereses durante un periodo más que la misma aportación al final, así que el valor final es mayor. Con un tipo de 0 % el resultado es idéntico. Lo que corresponde a tu caso depende de cuándo se hace realmente cada aportación.',
+  },
+  {
+    question: '¿Qué ocurre si el tipo de interés es 0 %?',
+    answer:
+      'No se generan intereses: el valor final es exactamente el capital inicial más la suma de las aportaciones. La calculadora trata este caso con su propia fórmula, sin divisiones entre cero.',
+  },
+  {
+    question: '¿Puedo hacer aportaciones periódicas?',
+    answer:
+      'Sí. La aportación es opcional y tiene un importe fijo en cada periodo, con la misma frecuencia que la capitalización. Si indicas una aportación mayor que 0, debes elegir si se realiza al inicio o al final de cada periodo. No se contemplan aportaciones variables, crecientes ni retiradas.',
+  },
+  {
+    question: '¿Por qué la duración tiene que ser compatible con la frecuencia?',
+    answer:
+      'Porque el cálculo usa periodos completos. Con frecuencia anual la duración debe ser un número entero de años (múltiplo de 12 meses); con semestral, múltiplo de 6 meses; con trimestral, múltiplo de 3 meses; con mensual vale cualquier número de meses. La duración máxima es de 1.200 meses (100 años).',
+  },
+  {
+    question: '¿El resultado incluye comisiones o impuestos?',
+    answer:
+      'No. El cálculo no incluye comisiones, gastos, impuestos ni inflación. Por eso la cifra se denomina «tipo efectivo anual equivalente» y no TAE: la TAE de un producto financiero incorpora también determinados gastos.',
+  },
+];
+---
+
+<CalculatorLayout {...calculatorPageProps('compound-interest')}>
+  <Fragment slot="intro">
+    <p>
+      Calcula cuánto puede crecer un capital con interés compuesto, con o sin aportaciones
+      periódicas. Sirve para comparar escenarios de ahorro a un tipo constante y para ver cómo
+      influyen el tipo, la frecuencia de capitalización y el plazo.
+    </p>
+    <p class="mt-3">
+      Introduce el capital inicial, la aportación (opcional), el tipo anual como TIN o como tipo
+      efectivo anual, la frecuencia (anual, semestral, trimestral o mensual), si aportas al inicio o
+      al final de cada periodo y la duración en años o en meses. Obtendrás el valor final estimado,
+      el capital aportado, los intereses generados, el tipo efectivo anual equivalente y la
+      evolución año a año en un gráfico y una tabla.
+    </p>
+  </Fragment>
+
+  <CompoundInterestIsland client:load />
+
+  <Fragment slot="content">
+    <section aria-labelledby="que-es" class="flex flex-col gap-3">
+      <h2 id="que-es" class="text-xl font-semibold text-text">
+        ¿Qué es el interés compuesto?
+      </h2>
+      <p>
+        Con interés compuesto, los intereses de cada periodo se incorporan al saldo, de modo que en
+        el periodo siguiente los intereses se calculan sobre una cantidad mayor. Con interés simple,
+        en cambio, se calculan siempre sobre el capital inicial.
+      </p>
+      <p>
+        Por ejemplo, 1.000&nbsp;€ al 5&nbsp;% anual durante 3 años, con capitalización anual y sin
+        aportaciones, generan 50,00&nbsp;€ de intereses el primer año, 52,50&nbsp;€ el segundo y
+        55,13&nbsp;€ el tercero: el valor final es de 1.157,63&nbsp;€. Con interés simple serían
+        50&nbsp;€ cada año.
+      </p>
+    </section>
+
+    <section aria-labelledby="como-se-calcula" class="flex flex-col gap-3">
+      <h2 id="como-se-calcula" class="text-xl font-semibold text-text">
+        ¿Cómo se calcula?
+      </h2>
+      <p>El resultado depende de seis datos:</p>
+      <ul class="flex list-disc flex-col gap-1.5 pl-5">
+        <li>
+          <strong>Capital inicial:</strong> la cantidad de la que partes. Genera intereses durante
+          toda la duración.
+        </li>
+        <li>
+          <strong>Tipo de interés anual</strong> y si se trata de un <strong>TIN</strong> o de un{' '}
+          <strong>tipo efectivo anual</strong>: a partir de ambos se obtiene el tipo de cada
+          periodo.
+        </li>
+        <li>
+          <strong>Frecuencia:</strong> cuántas veces al año se capitalizan los intereses y se
+          realiza la aportación.
+        </li>
+        <li>
+          <strong>Duración:</strong> en años o en meses; determina el número de periodos.
+        </li>
+        <li>
+          <strong>Aportación periódica</strong> (opcional): un importe fijo en cada periodo.
+        </li>
+        <li>
+          <strong>Momento de la aportación:</strong> al inicio o al final de cada periodo.
+        </li>
+      </ul>
+      <p>
+        El detalle exacto de las fórmulas está en la sección <a href="#metodologia">Metodología</a>.
+      </p>
+    </section>
+
+    <section aria-labelledby="tin-efectivo" class="flex flex-col gap-3">
+      <h2 id="tin-efectivo" class="text-xl font-semibold text-text">
+        Diferencia entre TIN y tipo efectivo anual
+      </h2>
+      <div class="grid gap-3 sm:grid-cols-2">
+        <div class="rounded-card border border-border bg-surface p-4">
+          <h3 class="font-semibold text-text">TIN (tipo nominal anual)</h3>
+          <p class="mt-1 text-sm">
+            Se reparte a partes iguales entre los periodos del año: un TIN del 5&nbsp;% con
+            capitalización mensual equivale a un tipo del 5&nbsp;% ÷ 12 cada mes.
+          </p>
+        </div>
+        <div class="rounded-card border border-border bg-surface p-4">
+          <h3 class="font-semibold text-text">Tipo efectivo anual</h3>
+          <p class="mt-1 text-sm">
+            Es el crecimiento real en un año completo, con la capitalización ya incluida. Se
+            convierte al tipo de cada periodo de forma que, al capitalizar todo el año, el
+            crecimiento sea exactamente ese porcentaje.
+          </p>
+        </div>
+      </div>
+      <p>
+        Como los intereses de cada periodo generan a su vez intereses, un TIN del 5&nbsp;% con
+        capitalización mensual equivale a un tipo efectivo anual del 5,12&nbsp;%. La calculadora
+        muestra siempre este <strong>tipo efectivo anual equivalente</strong>. No lo llama TAE
+        porque no incluye comisiones ni otros gastos de un producto financiero.
+      </p>
+    </section>
+
+    <section aria-labelledby="frecuencia" class="flex flex-col gap-3">
+      <h2 id="frecuencia" class="text-xl font-semibold text-text">
+        Frecuencia de capitalización
+      </h2>
+      <p>
+        La frecuencia indica cada cuánto se suman los intereses al saldo. En esta calculadora es
+        también la frecuencia de las aportaciones: con frecuencia trimestral, por ejemplo, hay una
+        aportación por trimestre.
+      </p>
+      <ul class="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:grid-cols-4">
+        {frequencies.map((frequency) => (
+          <li class="rounded-card border border-border bg-surface p-4">
+            <p class="font-semibold text-text">{frequency.name}</p>
+            <p class="text-sm text-text">{frequency.periods}</p>
+            <p class="text-sm text-muted">{frequency.detail}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section aria-labelledby="momento-aportacion" class="flex flex-col gap-3">
+      <h2 id="momento-aportacion" class="text-xl font-semibold text-text">
+        Aportaciones al inicio o al final del periodo
+      </h2>
+      <p>
+        Una aportación <strong>al inicio</strong> del periodo se suma al saldo en cuanto empieza el
+        periodo y genera intereses durante todo él. Una aportación <strong>al final</strong> entra
+        cuando el periodo ya ha terminado, así que empieza a generar intereses en el periodo
+        siguiente. En ambos casos se realiza el mismo número de aportaciones: una por periodo.
+      </p>
+    </section>
+
+    <section aria-labelledby="ejemplo-aportaciones" class="flex flex-col gap-3">
+      <h2 id="ejemplo-aportaciones" class="text-xl font-semibold text-text">
+        Ejemplo con aportaciones periódicas
+      </h2>
+      <p>
+        Capital inicial de 2.000&nbsp;€, aportación de 500&nbsp;€ cada semestre, TIN del 4&nbsp;%
+        con capitalización semestral y duración de 3 años: son 6 periodos con un tipo del 2&nbsp;%
+        cada uno.
+      </p>
+      <ul class="flex list-disc flex-col gap-1.5 pl-5">
+        <li>
+          <strong>Aportaciones al inicio de cada semestre:</strong> el modelo calcula un valor final
+          de 5.469,47&nbsp;€, de los que 5.000,00&nbsp;€ son capital aportado (2.000&nbsp;€
+          iniciales más 6 aportaciones de 500&nbsp;€) y 469,47&nbsp;€ son intereses.
+        </li>
+        <li>
+          <strong>Aportaciones al final de cada semestre:</strong> el valor final es de
+          5.406,39&nbsp;€, porque cada aportación genera intereses durante un semestre menos.
+        </li>
+      </ul>
+      <p>En ambos casos, el tipo efectivo anual equivalente es del 4,04&nbsp;%.</p>
+    </section>
+
+    <section aria-labelledby="interpretar" class="flex flex-col gap-3">
+      <h2 id="interpretar" class="text-xl font-semibold text-text">
+        Cómo interpretar el resultado
+      </h2>
+      <ul class="flex list-disc flex-col gap-1.5 pl-5">
+        <li>
+          <strong>Valor final:</strong> el saldo estimado al terminar la duración, incluidas todas
+          las aportaciones y los intereses.
+        </li>
+        <li>
+          <strong>Capital aportado:</strong> el capital inicial más la suma de las aportaciones. Es
+          dinero que pones tú, no rendimiento.
+        </li>
+        <li>
+          <strong>Intereses generados:</strong> la diferencia entre el valor final y el capital
+          aportado.
+        </li>
+        <li>
+          <strong>Tipo efectivo anual equivalente:</strong> el crecimiento anual que corresponde al
+          tipo y la frecuencia introducidos. Sirve para comparar un TIN con distintas frecuencias.
+        </li>
+      </ul>
+      <p>
+        El gráfico y la tabla muestran cómo se reparte el saldo a lo largo del tiempo. La última
+        fila de la tabla coincide con el valor final.
+      </p>
+    </section>
+
+    <section aria-labelledby="supuestos" class="flex flex-col gap-3">
+      <h2 id="supuestos" class="text-xl font-semibold text-text">
+        Supuestos y limitaciones
+      </h2>
+      <ul class="flex list-disc flex-col gap-1.5 pl-5">
+        <li>
+          Es una herramienta de simulación: aplica un tipo de interés constante durante toda la
+          duración. No predice rentabilidades futuras.
+        </li>
+        <li>No incluye comisiones, gastos, impuestos ni inflación.</li>
+        <li>
+          Las aportaciones tienen siempre el mismo importe y la misma frecuencia que la
+          capitalización. No se contemplan retiradas.
+        </li>
+        <li>
+          El tipo de interés debe estar entre 0&nbsp;% y 100&nbsp;%; no admite tipos negativos. El
+          valor final no puede superar 10<sup>15</sup>&nbsp;€ (mil billones de euros).
+        </li>
+        <li>
+          Los resultados son estimaciones matemáticas y no constituyen asesoramiento financiero.
+        </li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="preguntas" class="flex flex-col gap-3">
+      <h2 id="preguntas" class="text-xl font-semibold text-text">
+        Preguntas frecuentes
+      </h2>
+      <div class="flex flex-col gap-2">
+        {faqs.map((faq) => (
+          <details class="group rounded-card border border-border bg-surface">
+            <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-card px-4 py-3 font-semibold text-text [&::-webkit-details-marker]:hidden">
+              <span>{faq.question}</span>
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 20 20"
+                class="size-4 shrink-0 text-muted transition-transform duration-(--duration-fast) group-open:rotate-180"
+                fill="currentColor"
+              >
+                <path d="M5.3 7.3a1 1 0 0 1 1.4 0L10 10.6l3.3-3.3a1 1 0 1 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 0-1.4Z" />
+              </svg>
+            </summary>
+            <p class="px-4 pb-4 text-text">{faq.answer}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  </Fragment>
+
+  <Fragment slot="methodology">
+    <p>
+      El resultado lo calcula el motor de la calculadora en tu navegador, con aritmética decimal de
+      40 dígitos significativos y sin redondeos intermedios. Estas son las reglas exactas que
+      aplica:
+    </p>
+
+    <h3 class="text-lg font-semibold text-text">1. Número de periodos</h3>
+    <p>
+      La frecuencia fija los periodos por año, <var>m</var>: 1 (anual), 2 (semestral), 4
+      (trimestral) o 12 (mensual). La duración se convierte a meses, <var>M</var> (años × 12), y el
+      número de periodos es <var>n</var> = <var>M</var> · <var>m</var> / 12. <var>M</var> debe ser
+      múltiplo de 12 / <var>m</var> y no puede superar 1.200 meses.
+    </p>
+
+    <h3 class="text-lg font-semibold text-text">2. Tipo de interés de cada periodo</h3>
+    <p>
+      El porcentaje introducido (hasta 4 decimales, entre 0&nbsp;% y 100&nbsp;%) se convierte en
+      ratio:
+    </p>
+    <ul class="flex list-disc flex-col gap-1.5 pl-5">
+      <li>
+        Si es un TIN, <var>r</var>: <var>i</var> = <var>r</var> / <var>m</var>.
+      </li>
+      <li>
+        Si es un tipo efectivo anual, <var>X</var>: <var>i</var> = (1 + <var>X</var>)
+        <sup>
+          1/<var>m</var>
+        </sup>{' '}
+        − 1. No se divide entre <var>m</var>: así, capitalizando <var>m</var> veces, el crecimiento
+        anual es exactamente <var>X</var>.
+      </li>
+      <li>
+        El tipo efectivo anual equivalente que se muestra es (1 + <var>i</var>)
+        <sup>
+          <var>m</var>
+        </sup>{' '}
+        − 1. Si se introdujo un tipo efectivo anual, coincide con él.
+      </li>
+    </ul>
+
+    <h3 class="text-lg font-semibold text-text">3. Valor final</h3>
+    <p>
+      Con capital inicial <var>P</var> y aportación <var>C</var> en cada periodo, se calcula
+      directamente con la fórmula cerrada, sin acumular periodo a periodo:
+    </p>
+    <ul class="flex list-disc flex-col gap-1.5 pl-5">
+      <li>
+        Sin aportaciones: <var>VF</var> = <var>P</var> · (1 + <var>i</var>)
+        <sup>
+          <var>n</var>
+        </sup>
+        .
+      </li>
+      <li>
+        Aportaciones al final de cada periodo (instantes 1 a <var>n</var>): <var>VF</var> ={' '}
+        <var>P</var> · (1 + <var>i</var>)
+        <sup>
+          <var>n</var>
+        </sup>{' '}
+        + <var>C</var> · <var>s</var>.
+      </li>
+      <li>
+        Aportaciones al inicio de cada periodo (instantes 0 a <var>n</var> − 1): <var>VF</var> ={' '}
+        <var>P</var> · (1 + <var>i</var>)
+        <sup>
+          <var>n</var>
+        </sup>{' '}
+        + <var>C</var> · <var>s</var> · (1 + <var>i</var>).
+      </li>
+      <li>
+        Donde <var>s</var> = ((1 + <var>i</var>)
+        <sup>
+          <var>n</var>
+        </sup>{' '}
+        − 1) / <var>i</var>. Si el tipo es 0&nbsp;%, <var>s</var> = <var>n</var>: nunca se divide
+        entre cero.
+      </li>
+    </ul>
+    <p>
+      El capital aportado es <var>P</var> + <var>n</var> · <var>C</var>, y los intereses generados,{' '}
+      <var>VF</var> menos el capital aportado. Hay <var>n</var> aportaciones tanto al inicio como al
+      final.
+    </p>
+
+    <h3 class="text-lg font-semibold text-text">4. Tabla anual y gráfico</h3>
+    <p>
+      El saldo al final de cada año se obtiene con la misma fórmula aplicada a los periodos
+      transcurridos hasta ese momento. Si la duración no es un número entero de años, el último
+      tramo abarca solo los meses restantes. La última fila es exactamente el valor final. El
+      gráfico dibuja esos mismos saldos: no hay un segundo cálculo.
+    </p>
+
+    <h3 class="text-lg font-semibold text-text">5. Redondeo y límites</h3>
+    <p>
+      Solo se redondea al mostrar: importes a 2 decimales y el tipo efectivo a 2 decimales en puntos
+      porcentuales, redondeando la mitad hacia arriba (0,005&nbsp;€ se muestra como 0,01&nbsp;€).
+      Cada cifra se redondea por separado, por lo que al sumar cifras de la tabla puede aparecer una
+      diferencia de un céntimo. El capital inicial admite hasta 1.000.000.000&nbsp;€, la aportación
+      hasta 100.000.000&nbsp;€ (ambos con 2 decimales) y el valor final no puede superar 10
+      <sup>15</sup>&nbsp;€.
+    </p>
+  </Fragment>
+
+  <Fragment slot="disclaimer">
+    <p>
+      Esta calculadora es una herramienta de simulación con fines informativos y educativos. Los
+      resultados son estimaciones matemáticas basadas únicamente en los datos introducidos y en los
+      supuestos descritos en la metodología: no predicen rentabilidades futuras ni incluyen
+      comisiones, impuestos ni inflación. No constituyen asesoramiento financiero, fiscal ni de
+      inversión, ni una oferta o recomendación de ningún producto.
+    </p>
+  </Fragment>
+</CalculatorLayout>

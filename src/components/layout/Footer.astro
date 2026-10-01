@@ -1,0 +1,37 @@
+---
+/**
+ * Pie del sitio. Los enlaces legales salen de src/config/legal.ts y solo se
+ * muestran los de páginas que existen: hoy ninguna (PLACEHOLDER — PENDIENTE
+ * DE DEFINIR, docs/privacidad-y-legal.md). No se publica texto legal sin
+ * revisión.
+ */
+import { site } from '@/config/env';
+import { declaredLegalPages, type LegalPage } from '@/config/legal';
+
+interface Props {
+  /** Inyectable en tests. */
+  legal?: readonly LegalPage[];
+}
+
+const { legal = declaredLegalPages() } = Astro.props;
+---
+
+<footer class="mt-section border-t border-border bg-surface">
+  <div class="mx-auto flex max-w-page flex-col gap-1 px-gutter py-8 text-sm text-muted">
+    <p class="font-medium text-text">{site.name}</p>
+    {site.isPlaceholderIdentity && <p>{site.locale.messages.ui.placeholderIdentityNotice}</p>}
+    {legal.length > 0 && (
+      <nav aria-label={site.locale.messages.ui.legalNavLabel}>
+        <ul class="flex flex-wrap gap-x-5 gap-y-1">
+          {legal.map((page) => (
+            <li>
+              <a href={page.path} class="inline-flex min-h-11 items-center">
+                {page.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
+  </div>
+</footer>

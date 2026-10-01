@@ -1,0 +1,59 @@
+---
+/**
+ * Espacio publicitario — INFRAESTRUCTURA DESACTIVADA (ADR 0009).
+ *
+ * - Con `adsConfig.enabled = false` (valor actual) no renderiza NADA.
+ * - Con anuncios activados, se niega a renderizar (el build falla) si falta
+ *   cualquier requisito: id de editor, CMP certificada, id del bloque o altura
+ *   reservada (src/lib/ads/readiness.ts).
+ * - Nunca carga scripts. La carga de AdSense será una pieza aparte que
+ *   dependa del consentimiento; la calculadora no depende de ella.
+ * - Solo existen las posiciones de `AdPosition`; ninguna está dentro del
+ *   formulario ni entre los campos y el resultado.
+ * - Etiqueta "Anuncios": según las políticas de emplazamiento de AdSense,
+ *   los anuncios solo pueden etiquetarse como "Anuncios" o "Enlaces
+ *   patrocinados" (https://support.google.com/adsense/answer/1346295,
+ *   consultado el 01/10/2026).
+ * - Con `mobile: false`, el espacio no se muestra en pantallas estrechas.
+ */
+import { site } from '@/config/env';
+import {
+  adsConfig,
+  consentConfig,
+  type AdPosition,
+  type AdsConfig,
+  type ConsentConfig,
+} from '@/config/features';
+import { adSlotBlockers } from '@/lib/ads/readiness';
+
+interface Props {
+  position: AdPosition;
+  /** Inyectables en tests. */
+  config?: AdsConfig;
+  consent?: ConsentConfig;
+}
+
+const { position, config = adsConfig, consent = consentConfig } = Astro.props;
+const blockers = adSlotBlockers(position, config, consent);
+const slot = config.slots[position];
+
+if (config.enabled && blockers.length > 0) {
+  throw new Error(
+    `AdSlot "${position}": anuncios activados sin completar requisitos: ${blockers.join(', ')} (PENDIENTE DE DEFINIR).`,
+  );
+}
+---
+
+{blockers.length === 0 && (
+  <aside
+    aria-label={site.locale.messages.ui.adLabel}
+    data-ad-position={position}
+    class:list={[
+      'flex-col gap-1 border-t border-border pt-2',
+      slot.mobile ? 'flex' : 'hidden lg:flex',
+      slot.reservedHeightClass,
+    ]}
+  >
+    <p class="text-xs text-muted">{site.locale.messages.ui.adLabel}</p>
+  </aside>
+)}

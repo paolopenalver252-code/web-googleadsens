@@ -1,0 +1,159 @@
+@import 'tailwindcss';
+
+/*
+ * ═══════════════════════════════════════════════════════════════════════
+ *  TOKENS DE DISEÑO — IDENTIDAD PROVISIONAL
+ *  PLACEHOLDER — PENDIENTE DE DEFINIR: la marca todavía no existe.
+ *
+ *  Para aplicar la marca definitiva, cambia SOLO los valores de las dos
+ *  secciones `:root` de abajo (claro y oscuro). Los componentes nunca usan
+ *  colores sueltos: solo tokens semánticos (bg-surface, text-muted…).
+ *  Los contrastes WCAG 2.2 AA de cada par se comprueban automáticamente en
+ *  src/styles/tokens.test.ts: si un color nuevo no cumple, el test falla.
+ * ═══════════════════════════════════════════════════════════════════════
+ */
+
+/* Tema claro */
+:root {
+  --c-canvas: #f6f7f9; /* fondo de página */
+  --c-surface: #ffffff; /* tarjetas, formulario */
+  --c-surface-muted: #f0f2f5; /* zonas secundarias, cabeceras de tabla */
+  --c-text: #101828;
+  --c-text-muted: #475467;
+  --c-border: #e4e7ec; /* decorativo: separadores (no transmite información) */
+  --c-border-strong: #667085; /* bordes de controles: ≥ 3:1 (WCAG 1.4.11) */
+  --c-accent: #1d4ed8;
+  --c-accent-hover: #1e40af;
+  --c-accent-contrast: #ffffff; /* texto sobre accent */
+  --c-accent-soft: #eff4ff;
+  --c-danger: #b42318;
+  --c-danger-soft: #fef3f2;
+  --c-success: #067647;
+  --c-warning-text: #93370d;
+  --c-warning-soft: #fffaeb;
+  --c-focus: #1d4ed8;
+  --c-shadow: rgb(16 24 40 / 0.08);
+}
+
+/* Tema oscuro (según la preferencia del sistema) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --c-canvas: #0c111b;
+    --c-surface: #131a26;
+    --c-surface-muted: #1a2332;
+    --c-text: #e8ecf2;
+    --c-text-muted: #a4afc0;
+    --c-border: #273142;
+    --c-border-strong: #7c879a;
+    --c-accent: #86a8ff;
+    --c-accent-hover: #a9c1ff;
+    --c-accent-contrast: #0c111b;
+    --c-accent-soft: #17223a;
+    --c-danger: #ff9b8f;
+    --c-danger-soft: #2b1614;
+    --c-success: #6fd3a3;
+    --c-warning-text: #fdc77a;
+    --c-warning-soft: #2a1f0e;
+    --c-focus: #a9c1ff;
+    --c-shadow: rgb(0 0 0 / 0.4);
+  }
+}
+
+/* Se elimina la paleta por defecto de Tailwind: solo existen tokens semánticos. */
+@theme {
+  --color-*: initial;
+  --shadow-*: initial;
+
+  /* Tipografía: fuentes del sistema (sin fuentes externas ni descargas). */
+  --font-sans:
+    system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', 'Noto Sans', Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Consolas, 'Liberation Mono', monospace;
+
+  /* Espaciado: escala de Tailwind (múltiplos de 4 px) + tokens de maquetación. */
+  --spacing-gutter: 1rem; /* margen lateral móvil: 16 px */
+  --spacing-section: 3rem;
+
+  /* Anchos de contenido */
+  --container-content: 46rem;
+  --container-page: 72rem;
+
+  /* Radios */
+  --radius-control: 0.5rem;
+  --radius-card: 0.875rem;
+  --radius-pill: 999px;
+
+  /* Movimiento: solo transiciones breves de estado (sin animaciones decorativas). */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --duration-fast: 120ms;
+}
+
+@theme inline {
+  --color-canvas: var(--c-canvas);
+  --color-surface: var(--c-surface);
+  --color-surface-muted: var(--c-surface-muted);
+  --color-text: var(--c-text);
+  --color-muted: var(--c-text-muted);
+  --color-border: var(--c-border);
+  --color-border-strong: var(--c-border-strong);
+  --color-accent: var(--c-accent);
+  --color-accent-hover: var(--c-accent-hover);
+  --color-accent-contrast: var(--c-accent-contrast);
+  --color-accent-soft: var(--c-accent-soft);
+  --color-danger: var(--c-danger);
+  --color-danger-soft: var(--c-danger-soft);
+  --color-success: var(--c-success);
+  --color-warning: var(--c-warning-text);
+  --color-warning-soft: var(--c-warning-soft);
+  --color-focus: var(--c-focus);
+
+  --shadow-card: 0 1px 2px var(--c-shadow), 0 4px 16px -8px var(--c-shadow);
+}
+
+@layer base {
+  html {
+    color-scheme: light dark;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Foco siempre visible (WCAG 2.4.7) con contraste ≥ 3:1 (1.4.11). */
+  :focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  /* Destino del enlace de salto: recibe foco por script, sin anillo permanente. */
+  main:focus {
+    outline: none;
+  }
+
+  a {
+    color: var(--color-accent);
+    text-decoration-line: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  a:hover {
+    color: var(--color-accent-hover);
+  }
+
+  /* WCAG 2.3.3 / preferencia del usuario: sin movimiento. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

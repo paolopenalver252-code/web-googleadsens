@@ -1,0 +1,5 @@
+{
+  "$comment": "Presupuestos de JavaScript inicial por página, en kB comprimidos con gzip. Ver docs/performance.md. Si hay que revisar un valor, se documenta la medición en ese archivo, nunca se sube sin más.",
+  "calculatorPageJsGzipKB": 50,
+  "contentPageJsGzipKB": 1
+}

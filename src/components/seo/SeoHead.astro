@@ -1,0 +1,20 @@
+---
+import type { PageMeta } from '@/lib/seo/meta';
+
+interface Props {
+  meta: PageMeta;
+}
+
+const { meta } = Astro.props;
+---
+
+<title>{meta.title}</title>
+<meta name="description" content={meta.description} />
+<link rel="canonical" href={meta.canonical} />
+<meta name="robots" content={meta.robots} />
+<meta property="og:type" content={meta.openGraph.type} />
+<meta property="og:title" content={meta.openGraph.title} />
+<meta property="og:description" content={meta.openGraph.description} />
+<meta property="og:url" content={meta.openGraph.url} />
+<meta property="og:site_name" content={meta.openGraph.siteName} />
+<meta property="og:locale" content={meta.openGraph.locale} />

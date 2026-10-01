@@ -1,0 +1,30 @@
+---
+/**
+ * Metodología de la calculadora. Sin contenido, muestra "NO VERIFICADO —
+ * NECESITA FUENTE": una calculadora sin metodología documentada no se publica.
+ */
+import { site } from '@/config/env';
+
+interface Props {
+  engineVersion: string;
+}
+
+const { ui } = site.locale.messages;
+const hasContent = Astro.slots.has('default');
+---
+
+<section aria-labelledby="metodologia" class="flex flex-col gap-3">
+  <h2 id="metodologia" class="text-xl font-semibold text-text">
+    {ui.methodologyHeading}
+  </h2>
+  {hasContent ? (
+    <div class="flex flex-col gap-3 text-text">
+      <slot />
+    </div>
+  ) : (
+    <p>
+      <strong class="text-warning">{ui.unverified}</strong>
+    </p>
+  )}
+  <p class="text-sm text-muted">{ui.engineVersion(Astro.props.engineVersion)}</p>
+</section>

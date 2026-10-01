@@ -1,0 +1,83 @@
+---
+/**
+ * Lista de fuentes de una calculadora, ordenada por autoridad (oficial →
+ * académica → educativa → secundaria).
+ *
+ * Lanza (y rompe el build) si `extraSourceIds` referencia una fuente que no
+ * existe en el registro. Sin fuentes, muestra "NO VERIFICADO — NECESITA FUENTE".
+ * Las fuentes sin verificar se marcan con esa misma etiqueta.
+ */
+import { site } from '@/config/env';
+import { resolveSourceIds, sortByPriority, sourcesForCalculator } from '@/core/sources/integrity';
+import type { SourceRecord } from '@/core/sources/types';
+import { formatIsoDate } from '@/i18n/format';
+import { sourceRegistry } from '@/sources/registry';
+
+interface Props {
+  calculatorId: string;
+  /** Fuentes citadas por id (p. ej. desde reglas o política de redondeo). */
+  extraSourceIds?: readonly string[];
+  /** Inyectable en tests. */
+  registry?: readonly SourceRecord[];
+}
+
+const { calculatorId, extraSourceIds = [], registry = sourceRegistry } = Astro.props;
+const locale = site.locale;
+const { ui, sourceTypes, jurisdictions } = locale.messages;
+
+const extra = resolveSourceIds(registry, extraSourceIds);
+const byId = new Map(
+  [...sourcesForCalculator(registry, calculatorId), ...extra].map((source) => [source.id, source]),
+);
+const sources = sortByPriority([...byId.values()]);
+---
+
+<section aria-labelledby="fuentes" class="flex flex-col gap-3">
+  <h2 id="fuentes" class="text-xl font-semibold text-text">
+    {ui.sourcesHeading}
+  </h2>
+  {sources.length === 0 ? (
+    <p>
+      <strong class="text-warning">{ui.noSources}</strong>
+    </p>
+  ) : (
+    <ol class="flex flex-col gap-4">
+      {sources.map((source) => (
+        <li class="rounded-card border border-border bg-surface p-4" data-source-id={source.id}>
+          <p class="font-medium">
+            <a href={source.url} rel="noreferrer">
+              {source.title}
+            </a>
+          </p>
+          <p class="text-sm text-muted">
+            {source.publisher} · {sourceTypes[source.type]} ·{' '}
+            {jurisdictions[source.jurisdiction] ?? source.jurisdiction}
+          </p>
+          {source.appliesTo && (
+            <p class="text-sm text-muted">
+              {ui.sourceAppliesTo(
+                formatIsoDate(source.appliesTo.from, locale),
+                source.appliesTo.to === null ? null : formatIsoDate(source.appliesTo.to, locale),
+              )}
+            </p>
+          )}
+          <p class="text-sm text-muted">
+            {source.accessedAt && (
+              <span>{ui.sourceAccessed(formatIsoDate(source.accessedAt, locale))}</span>
+            )}
+            {source.accessedAt && source.reviewedAt && <span> · </span>}
+            {source.reviewedAt && (
+              <span>{ui.sourceReviewed(formatIsoDate(source.reviewedAt, locale))}</span>
+            )}
+          </p>
+          {source.status !== 'verified' && (
+            <p class="mt-1">
+              <strong class="text-warning">{ui.unverified}</strong>
+            </p>
+          )}
+          {source.notes && <p class="mt-1 text-sm text-text">{source.notes}</p>}
+        </li>
+      ))}
+    </ol>
+  )}
+</section>

@@ -1,0 +1,92 @@
+---
+/**
+ * Plantilla de TODA página de calculadora. Orden fijo (docs/adr/0005-seo.md):
+ *
+ *   migas → H1 + intro → calculadora (isla) → [anuncio tras resultado]
+ *   → contenido explicativo → metodología → fuentes → aviso
+ *   → calculadoras relacionadas → [anuncio final]
+ *
+ * Los anuncios (desactivados) nunca se colocan dentro de la calculadora ni
+ * entre los campos y el resultado. La posición 'sidebar' requerirá una
+ * maquetación a dos columnas cuando se activen los anuncios.
+ *
+ * Slots: default (isla de la calculadora), intro, content, methodology, disclaimer.
+ */
+import AdSlot from '@/components/ads/AdSlot.astro';
+import Disclaimer from '@/components/calculator/Disclaimer.astro';
+import Methodology from '@/components/calculator/Methodology.astro';
+import RelatedCalculators from '@/components/calculator/RelatedCalculators.astro';
+import SourceList from '@/components/calculator/SourceList.astro';
+import Breadcrumbs from '@/components/layout/Breadcrumbs.astro';
+import { site } from '@/config/env';
+import type { CalculatorMetadata } from '@/core/calculator/definition';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import type { PageMetaInput } from '@/lib/seo/meta';
+import type { BreadcrumbItem } from '@/lib/seo/schema/breadcrumb';
+
+interface Props {
+  page: PageMetaInput;
+  heading: string;
+  breadcrumbs: readonly BreadcrumbItem[];
+  calculator: CalculatorMetadata;
+  /** Fuentes citadas por id además de las que declaran respaldar la calculadora. */
+  sourceIds?: readonly string[];
+}
+
+const { page, heading, breadcrumbs, calculator, sourceIds = [] } = Astro.props;
+---
+
+<BaseLayout page={page}>
+  <div class="mx-auto flex max-w-content flex-col gap-10 px-gutter py-8 sm:py-10">
+    <div class="flex flex-col gap-4">
+      <Breadcrumbs items={breadcrumbs} />
+      <h1 class="text-3xl font-bold tracking-tight text-balance text-text sm:text-4xl">
+        {heading}
+      </h1>
+      {Astro.slots.has('intro') && (
+        <div class="text-lg text-muted">
+          <slot name="intro" />
+        </div>
+      )}
+    </div>
+
+    <div>
+      <slot />
+      <noscript>
+        <p class="rounded-card border border-border bg-warning-soft p-4 font-medium text-warning">
+          {site.locale.messages.ui.jsRequired}
+        </p>
+      </noscript>
+    </div>
+
+    <AdSlot position="after-result" />
+
+    {Astro.slots.has('content') && (
+      <div class="flex flex-col gap-4 text-text">
+        <slot name="content" />
+      </div>
+    )}
+
+    {Astro.slots.has('methodology') ? (
+      <Methodology engineVersion={calculator.version}>
+        <slot name="methodology" />
+      </Methodology>
+    ) : (
+      <Methodology engineVersion={calculator.version} />
+    )}
+
+    <SourceList calculatorId={calculator.id} extraSourceIds={sourceIds} />
+
+    {Astro.slots.has('disclaimer') ? (
+      <Disclaimer>
+        <slot name="disclaimer" />
+      </Disclaimer>
+    ) : (
+      <Disclaimer />
+    )}
+
+    <RelatedCalculators ids={calculator.related} />
+
+    <AdSlot position="end-of-content" />
+  </div>
+</BaseLayout>

@@ -1,0 +1,25 @@
+---
+import { site } from '@/config/env';
+
+const { ui } = site.locale.messages;
+---
+
+<header class="border-b border-border bg-surface">
+  <div class="mx-auto flex max-w-page flex-wrap items-center justify-between gap-x-6 gap-y-2 px-gutter py-3">
+    <a
+      href="/"
+      class="text-lg font-semibold tracking-tight text-text no-underline hover:text-accent"
+    >
+      {site.name}
+    </a>
+    <nav aria-label={ui.mainNavLabel}>
+      <ul class="flex items-center gap-5 text-sm font-medium">
+        <li>
+          <a href="/#calculadoras" class="text-text no-underline hover:text-accent">
+            {ui.calculatorsHeading}
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>

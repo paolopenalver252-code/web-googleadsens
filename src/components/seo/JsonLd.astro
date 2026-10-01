@@ -1,0 +1,19 @@
+---
+/**
+ * Único punto del sitio autorizado a usar `set:html`. El contenido pasa por
+ * serializeJsonLd, que escapa <, >, &, U+2028 y U+2029: un valor malicioso
+ * no puede cerrar la etiqueta <script> (ver src/lib/seo/schema/json-ld.ts y
+ * sus tests). Un <script type="application/ld+json"> es un bloque de datos:
+ * el navegador no lo ejecuta.
+ */
+import { serializeJsonLd, type JsonLdObject } from '@/lib/seo/schema/json-ld';
+
+interface Props {
+  data: JsonLdObject;
+}
+
+const json = serializeJsonLd(Astro.props.data);
+---
+
+{/* eslint-disable-next-line astro/no-set-html-directive -- JSON serializado y escapado, ver arriba */}
+<script type="application/ld+json" set:html={json} />

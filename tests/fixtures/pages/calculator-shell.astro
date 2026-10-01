@@ -1,0 +1,32 @@
+---
+/**
+ * Página de prueba de la infraestructura. Solo existe en el build de tests
+ * (INCLUDE_TEST_PAGES=1, integrations/test-pages.ts). Siempre noindex.
+ */
+import CalculatorLayout from '@/layouts/CalculatorLayout.astro';
+
+import { echoCalculator } from '../echo-calculator/definition';
+import EchoIsland from '../echo-calculator/EchoIsland';
+
+const path = '/test-harness/calculator-shell';
+---
+
+<CalculatorLayout
+  page={{
+    title: 'Página de prueba de la infraestructura',
+    description: 'Página interna de pruebas automatizadas. No se publica.',
+    path,
+    noindex: true,
+  }}
+  heading="Página de prueba de la infraestructura"
+  breadcrumbs={[
+    { name: 'Inicio', path: '/' },
+    { name: 'Prueba de infraestructura', path },
+  ]}
+  calculator={echoCalculator}
+>
+  <p slot="intro">
+    Calculadora ficticia: devuelve los valores introducidos tal cual. No contiene ninguna fórmula.
+  </p>
+  <EchoIsland client:load />
+</CalculatorLayout>

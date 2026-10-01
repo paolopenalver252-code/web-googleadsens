@@ -1,0 +1,26 @@
+---
+/**
+ * Aviso de la calculadora. Sin contenido muestra un PLACEHOLDER explícito:
+ * el texto legal se redacta y revisa, no se improvisa.
+ */
+import { site } from '@/config/env';
+
+const { ui } = site.locale.messages;
+const hasContent = Astro.slots.has('default');
+---
+
+<aside
+  aria-labelledby="aviso"
+  class="rounded-card border border-border bg-surface-muted p-4 text-sm"
+>
+  <h2 id="aviso" class="font-semibold text-text">
+    {ui.disclaimerHeading}
+  </h2>
+  {hasContent ? (
+    <div class="mt-1 text-text">
+      <slot />
+    </div>
+  ) : (
+    <p class="mt-1 text-text">{ui.disclaimerPlaceholder}</p>
+  )}
+</aside>

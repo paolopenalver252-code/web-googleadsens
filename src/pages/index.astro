@@ -1,0 +1,84 @@
+---
+/**
+ * Portada. Lista SOLO calculadoras publicadas, agrupadas por categoría
+ * (publishedByCategory omite las categorías vacías). Cada afirmación de
+ * "Cómo se calculan los resultados" describe algo que el código garantiza
+ * (ADR 0002, 0006, 0007 y docs/security.md).
+ */
+import { publishedByCategory } from '@/calculators/categories';
+import { calculatorRegistry } from '@/calculators/registry';
+import { site } from '@/config/env';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const { ui } = site.locale.messages;
+const groups = publishedByCategory(calculatorRegistry);
+---
+
+<BaseLayout
+  page={{
+    title: site.name,
+    // PLACEHOLDER — PENDIENTE DE DEFINIR: la descripción depende de la marca.
+    description: 'PLACEHOLDER — PENDIENTE DE DEFINIR: descripción de la portada.',
+    path: '/',
+  }}
+>
+  <div class="mx-auto flex max-w-content flex-col gap-10 px-gutter py-10 sm:py-14">
+    <div class="flex flex-col gap-3">
+      <h1 class="text-3xl font-bold tracking-tight text-balance text-text sm:text-4xl">
+        {site.name}
+      </h1>
+      <p class="text-lg text-muted">
+        Calculadoras online que explican cómo obtienen cada resultado.
+      </p>
+    </div>
+
+    <section id="calculadoras" aria-labelledby="calculadoras-titulo" class="flex flex-col gap-4">
+      <h2 id="calculadoras-titulo" class="text-xl font-semibold text-text">
+        {ui.calculatorsHeading}
+      </h2>
+      {groups.length === 0 ? (
+        <p class="text-muted">{ui.noCalculatorsYet}</p>
+      ) : (
+        groups.map((group) => (
+          <section aria-labelledby={`categoria-${group.category.id}`} class="flex flex-col gap-3">
+            <h3 id={`categoria-${group.category.id}`} class="font-semibold text-text">
+              {group.category.name}
+            </h3>
+            <ul class="grid gap-3 sm:grid-cols-2">
+              {group.entries.map((entry) => (
+                <li>
+                  <a
+                    href={`/${entry.calculator.slug}`}
+                    class="flex h-full flex-col gap-1 rounded-card border border-border bg-surface p-4 no-underline shadow-card"
+                  >
+                    <span class="font-medium">{entry.name}</span>
+                    <span class="text-sm text-muted">{entry.seo.description}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      )}
+    </section>
+
+    <section aria-labelledby="como-calculamos" class="flex flex-col gap-3">
+      <h2 id="como-calculamos" class="text-xl font-semibold text-text">
+        Cómo se calculan los resultados
+      </h2>
+      <ul class="flex list-disc flex-col gap-1.5 pl-5 text-text">
+        <li>
+          El cálculo se hace en tu navegador: los datos que introduces no se envían ni se guardan.
+        </li>
+        <li>
+          Se usa aritmética decimal de 40 cifras significativas, sin los errores de redondeo de la
+          coma flotante, y el resultado solo se redondea al mostrarlo.
+        </li>
+        <li>
+          Cada calculadora explica su metodología, sus supuestos y sus limitaciones, e indica qué
+          fuentes la respaldan o si todavía no están verificadas.
+        </li>
+      </ul>
+    </section>
+  </div>
+</BaseLayout>

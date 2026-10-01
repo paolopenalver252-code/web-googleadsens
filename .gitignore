@@ -1,0 +1,30 @@
+# Dependencias y artefactos de build
+node_modules/
+dist/
+dist-test/
+.astro/
+.vercel/
+
+# Resultados de tests
+coverage/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Entorno local (nunca versionar secretos)
+.env
+.env.*
+!.env.example
+
+# Sistema / editores
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+
+# Skills de agentes de IA instalados de terceros.
+# DECISIÓN PENDIENTE (#15): por defecto NO se versionan; solo se conserva
+# skills-lock.json, que permite reinstalarlos de forma reproducible.
+.claude/skills/
+.agents/

@@ -1,0 +1,21 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  page={{
+    title: 'Página no encontrada',
+    description: 'La página que buscas no existe o ha cambiado de dirección.',
+    path: '/404',
+    noindex: true,
+  }}
+>
+  <div class="mx-auto flex max-w-content flex-col gap-4 px-gutter py-14">
+    <p class="text-sm font-semibold text-muted">Error 404</p>
+    <h1 class="text-3xl font-bold tracking-tight text-text">Página no encontrada</h1>
+    <p class="text-lg text-muted">La página que buscas no existe o ha cambiado de dirección.</p>
+    <p>
+      <a href="/">Volver al inicio</a>
+    </p>
+  </div>
+</BaseLayout>

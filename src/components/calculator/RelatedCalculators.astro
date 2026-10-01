@@ -1,0 +1,38 @@
+---
+/**
+ * Enlaces internos a calculadoras relacionadas, declarados explícitamente
+ * en la definición (`related`), nunca generados automáticamente. Lanza si un
+ * id no está registrado. Sin relacionadas, no renderiza nada.
+ */
+import { calculatorRegistry } from '@/calculators/registry';
+import { site } from '@/config/env';
+import type { CalculatorEntry } from '@/core/calculator/registry-integrity';
+
+interface Props {
+  ids: readonly string[];
+  /** Inyectable en tests. */
+  registry?: readonly CalculatorEntry[];
+}
+
+const { ids, registry = calculatorRegistry } = Astro.props;
+const entries = ids.map((id) => {
+  const entry = registry.find((candidate) => candidate.calculator.id === id);
+  if (entry === undefined) throw new Error(`RelatedCalculators: calculadora no registrada "${id}"`);
+  return entry;
+});
+---
+
+{entries.length > 0 && (
+  <nav aria-labelledby="relacionadas" class="flex flex-col gap-3">
+    <h2 id="relacionadas" class="text-xl font-semibold text-text">
+      {site.locale.messages.ui.relatedHeading}
+    </h2>
+    <ul class="flex flex-col gap-2">
+      {entries.map((entry) => (
+        <li>
+          <a href={`/${entry.calculator.slug}`}>{entry.name}</a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+)}

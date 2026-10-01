@@ -1,0 +1,29 @@
+---
+/**
+ * Página de PRUEBA de la UI de interés compuesto. Solo existe en el build de
+ * tests (INCLUDE_TEST_PAGES=1). Siempre noindex. NO es la página de
+ * producción: no tiene contenido editorial, SEO, fuentes ni metodología.
+ */
+import CompoundInterestIsland from '@/calculators/compound-interest/ui/CompoundInterestIsland';
+import { compoundInterest } from '@/calculators/compound-interest/definition';
+import CalculatorLayout from '@/layouts/CalculatorLayout.astro';
+
+const path = '/test-harness/compound-interest';
+---
+
+<CalculatorLayout
+  page={{
+    title: 'Prueba: calculadora de interés compuesto',
+    description: 'Página interna de pruebas automatizadas. No se publica.',
+    path,
+    noindex: true,
+  }}
+  heading="Prueba: calculadora de interés compuesto"
+  breadcrumbs={[
+    { name: 'Inicio', path: '/' },
+    { name: 'Prueba de interés compuesto', path },
+  ]}
+  calculator={compoundInterest}
+>
+  <CompoundInterestIsland client:load />
+</CalculatorLayout>

@@ -1,0 +1,43 @@
+{
+  // Frontera de pureza (ver docs/adr/0002-arquitectura.md).
+  //
+  // Compila las capas que NO pueden depender de Astro, Preact ni del DOM:
+  // core, i18n, fuentes y la lógica de las calculadoras (todo menos su `ui/`).
+  // `lib` solo incluye ECMAScript (sin "DOM") y `types` está vacío (sin Node):
+  // si alguna de estas capas usa `window`, `document`, `URL`, `process`…, o
+  // importa un archivo que lo haga, este typecheck falla.
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "types": [],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "src/core/**/*.ts",
+    "src/i18n/**/*.ts",
+    "src/sources/**/*.ts",
+    "src/calculators/**/*.ts"
+  ],
+  "exclude": ["**/*.test.ts", "**/__tests__/**", "src/calculators/**/ui/**"]
+}

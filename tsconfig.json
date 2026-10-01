@@ -1,0 +1,25 @@
+{
+  // Configuración principal: toda la app (Astro, Preact, tests, scripts).
+  // Parte del preset más estricto de Astro (strict + noUncheckedIndexedAccess,
+  // exactOptionalPropertyTypes, noImplicitReturns, etc.).
+  "extends": "astro/tsconfigs/strictest",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@tests/*": ["./tests/*"]
+    }
+  },
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": [
+    "dist",
+    "dist-test",
+    "coverage",
+    "node_modules",
+    "playwright-report",
+    "test-results",
+    ".claude",
+    ".agents"
+  ]
+}

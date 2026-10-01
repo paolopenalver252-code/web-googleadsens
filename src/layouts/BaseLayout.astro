@@ -1,0 +1,36 @@
+---
+import '@/styles/global.css';
+
+import Footer from '@/components/layout/Footer.astro';
+import Header from '@/components/layout/Header.astro';
+import SkipLink from '@/components/layout/SkipLink.astro';
+import SeoHead from '@/components/seo/SeoHead.astro';
+import { site, siteMetaContext } from '@/config/env';
+import { buildPageMeta, type PageMetaInput } from '@/lib/seo/meta';
+
+interface Props {
+  page: PageMetaInput;
+}
+
+const meta = buildPageMeta(Astro.props.page, siteMetaContext);
+---
+
+<!doctype html>
+<html lang={site.locale.tag}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <SeoHead meta={meta} />
+    <slot name="head" />
+  </head>
+  <body class="flex min-h-dvh flex-col">
+    <SkipLink />
+    <Header />
+    <main id="contenido" tabindex="-1" class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
